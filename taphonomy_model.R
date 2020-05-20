@@ -1,4 +1,4 @@
-#' @title Taphoomy Model
+#' @title Taphonomy Model
 #' @params x Variant frequency matrix generated using the model_cultChange() function
 #' @params r Sampling fraction to be retained from objects surviving taphonomic loss. Default is 1.
 #' @params lambda Magnitude of taphonomic loss. Default is 0.1
