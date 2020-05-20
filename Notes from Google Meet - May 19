@@ -2,11 +2,18 @@
 Notes from Google Meet - May 19, 2020
 
 What is the direction of the paper? 
--Option 1: Senstivity analysis of underlying data quality. Broadly this would entail manipulating the data to reflect various processes that impact archaeological or historical data. 
+-Option 1: Senstivity analysis of underlying data quality. Broadly this would entail manipulating the data to reflect 
+various processes that impact archaeological or historical data. 
 
--Option 2: Tracking demographic changes. This would emphasise the ability to recognize the "abruptness" of demographic changes in the record of variants. Can diversity measures or diversification rates pick up signatures of different demographic changes? In addition, are we able to know that changes in variants emerge from demographic changes or are they potenitally caused by something else. 
+-Option 2: Tracking demographic changes. This would emphasise the ability to recognize the "abruptness" of demographic changes in 
+the record of variants. Can diversity measures or diversification rates pick up signatures of different demographic changes? 
+In addition, are we able to know that changes in variants emerge from demographic changes or are they potenitally caused by something else. 
 
-The decision was to focus on manuscript option #1. This framing seems to be more straightforward and manageable within the time frame and word count of the PhilTrans special issue. The second option is arguably a more interesting paper and dovetails with some of the ideas and concepts Erik is exploring in his Renfrew fellowship such as resilience and how we identify "tipping points" in the archaeological record. This will likely be a longer and more in-depth paper that will be worked on at a later date likely including empirical data from the Jomon or American Southwest.  
+The decision was to focus on manuscript option #1. This framing seems to be more straightforward and manageable within the time frame
+and word count of the PhilTrans special issue. The second option is arguably a more interesting paper and dovetails with some of the
+ideas and concepts Erik is exploring in his Renfrew fellowship such as resilience and how we identify "tipping points" in the 
+archaeological record. This will likely be a longer and more in-depth paper that will be worked on at a later date likely including 
+empirical data from the Jomon or American Southwest.  
 
 Tentative Research Design
 
@@ -32,14 +39,17 @@ b. Random taphonomy: Random sampling of variants from all time bins
 	-Low taphonomy: 10-20% removed
 
 c. Age-dependent taphonomy: Variants that exist in more previous generations, less likely to experience high taphonomy
-	-Number of previous generations decreases the taphonomy percentage? For each generation, reduce the sampling of that variant by some percentage, perhaps 3-5%. Make this cumulative through time, so long-lived variants have low taphonomy values.  
+	-Number of previous generations decreases the taphonomy percentage? For each generation, reduce the sampling of that variant by 
+	some percentage, perhaps 3-5%. Make this cumulative through time, so long-lived variants have low taphonomy values.  
 
 d. Frequency-dependent taphonomy (i.e. Diversity-depenedene): Remove variants from each generation that have low frequency values.
 	1. High taphonomy: Remove everything with less than 20 (check these values)
 	2. Moderate taphonomy: Remove everything with less than 10
 	3. Low taphonomy: Remove everything with less than 5
 
-3. For each of these taphonomic scenarios, we want to create two types of data set. One in which we have both the variant and the frequency represented (i.e. PyRate style data) and one in which we have the variant and time range of each variant (i.e. LiteRate style data). We then want to analyze both sets of data using a variety of measures, which may include:
+3. For each of these taphonomic scenarios, we want to create two types of data set. One in which we have both the variant and the
+frequency represented (i.e. PyRate style data) and one in which we have the variant and time range of each variant 
+(i.e. LiteRate style data). We then want to analyze both sets of data using a variety of measures, which may include:
 	1. Diversity indices: Richness, CV, Simpson, Shannon
 	2. PyRate Rates: Diversification rates with frequency occurrence data
 	3. LiteRate Rates: Diversification rates with range occurrence data
