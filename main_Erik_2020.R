@@ -13,7 +13,7 @@ r=0.3
 #population size at the beginning (N1) and end (N2) of consideration
 N1=1000
 N2=1000
-b_value=c(-0.03,0.03) #(-0.03,-0.01,0,0.01,0.03)
+b_value=c(0) #(-0.03,-0.01,0,0.01,0.03)
 mut_value=0.01 #or 0.1
 
 #population size for each time step (linear interpolation between N1 and N2)
@@ -34,7 +34,7 @@ initial_pop=c(a1,a2,a3,a4)
 #switch_cult contains the time steps when a switch occurs and b_value the corresponding selection strength
 #IMPORTANT: switch_cult has to contain 1 as this defines the initial b
 #IMPORTANT: for constant selection strength choose switch_cult=c(1) and define the value in b_value
-switch_cult=c(1,25)
+switch_cult=c(1)
 #switch_cult=c(1) #constant
 #b_value=c(-0.03)
 #b_value=0.03 #adjust accordingly (-0.03,-0.01,0.01,0.03)
