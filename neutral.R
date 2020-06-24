@@ -5,14 +5,17 @@ instances <- function(x,cases)
   return(table(x) - 1)
 }
 
-neutral=function(N,mu,warm=1000,ts=50)
+neutral=function(N,N0=N[1],mu0=mu[1],mu,warm=1000,ts=50)
 {
-  variants = 1:N
-  tcounter = N
+  variants = 1:N0
+  tcounter = N0
+  if (length(mu)==1){mu=rep(mu,ts)}
+  if (length(N)==1){N=rep(N,ts)}
+  
   for (i in 1:warm)
   {
-    variants = sample(variants,size=N,replace=TRUE)
-    index = which(runif(N)<=mu)
+    variants = sample(variants,size=N0,replace=TRUE)
+    index = which(runif(N0)<=mu)
     if (length(index)>0)
     {
       variants[index]=(tcounter+1):c(tcounter+length(index))
@@ -20,19 +23,19 @@ neutral=function(N,mu,warm=1000,ts=50)
     }
   }
   
-  res = matrix(NA,nrow=ts,ncol=N)
-  res[1,]=variants
+  res = vector('list',length=ts)
+  res[[1]]=variants
   for (i in 2:ts)
   {
-    res[i,] = sample(res[i-1,],size=N,replace=TRUE)
-    index = which(runif(N)<=mu)
+    res[[i]] = sample(res[[i-1]],size=N[i],replace=TRUE)
+    index = which(runif(N[i])<=mu[i])
     if (length(index)>0)
     {
-      res[i,index]=(tcounter+1):c(tcounter+length(index))
+      res[[i]][index]=(tcounter+1):c(tcounter+length(index))
       tcounter = tcounter + length(index) 
     }
   }
   
-  res=apply(res,1,instances,cases=unique(as.numeric(res)))
+  res=sapply(res,instances,cases=unique((unlist(res))))
   return(res)
 }
