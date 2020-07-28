@@ -15,7 +15,7 @@ neutral=function(N,N0=N[1],mu0=mu[1],mu,warm=1000,ts=50)
   for (i in 1:warm)
   {
     variants = sample(variants,size=N0,replace=TRUE)
-    index = which(runif(N0)<=mu)
+    index = which(runif(N0)<=mu0)
     if (length(index)>0)
     {
       variants[index]=(tcounter+1):c(tcounter+length(index))

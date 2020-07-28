@@ -20,7 +20,7 @@ freqBias=function(N,N0=N[1],mu0=mu[1],mu,b0=b[1],b=0,warm=1000,ts=50)
     sample.pool = as.numeric(names(variants.cnt))
     variants = sample(sample.pool,size=N0,prob=trans.prb,replace=TRUE)
     
-    index = which(runif(N0)<=mu)
+    index = which(runif(N0)<=mu0)
     if (length(index)>0)
     {
       variants[index]=(tcounter+1):c(tcounter+length(index))
@@ -35,8 +35,6 @@ freqBias=function(N,N0=N[1],mu0=mu[1],mu,b0=b[1],b=0,warm=1000,ts=50)
     variants.cnt=table(res[[i-1]])
     trans.prb= ((variants.cnt/N[i-1])^(1-b[i])) / sum((variants.cnt/N[i-1])^(1-b[i]))
     sample.pool = as.numeric(names(variants.cnt))
-    variants = sample(sample.pool,size=N0,prob=trans.prb,replace=TRUE)
-    
     res[[i]] = sample(sample.pool,size=N[i],prob=trans.prb,replace=TRUE)
     
     index = which(runif(N[i])<=mu[i])
