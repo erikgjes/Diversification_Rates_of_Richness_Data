@@ -1,0 +1,529 @@
+---
+title: "PhilTrans"
+author: "Erik Gjesfjeld"
+date: "`r Sys.Date()`"
+output: 
+    html_document: default
+    toc: true
+    fig_caption: true
+    self_contained: yes
+fontsize: 11pt
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Phil_Trans Outline
+
+### Intro
+
+This paper aims to explore changes in the tempo of cultural evolutionary changes using range data (richness with start and end dates). The decision to focus on range data is to highlight that this type of data is very common in many forms of evolutionary analysis, as taphonomic processes inherently reduce the granularity of data (this is the focus of the collaborative paper). This not only includes paleobiology, but also archaeology and anthropology, and a range of other sciences as well. 
+
+Here, we suggest that the most effective set of tools for handling range data, is a model-based approach (like that implemented in PyRate), as opposed to relying on empirical rates or raw richness counts. The reasons for this are two-fold: 1) Similar patterns in richness can be the result of different underlying processes and 2) empirical diversification rates are often very noisy, and it is difficult to tell whether changes in empirical rates over time are signficant. Based on this, the key questions of the paper would be:
+
+1. What can we and what can we not infer from range data?
+  * We can not infer more "traditional" evolutionary measures that require frequency data (diversity indices)
+  * We can infer evolutionary measures of "tempo", which include richness, origination rates, extinction rates, longevity, and turnover rates
+
+2. Despite not having frequency data, can we still identify cultural evolutionary dynamics using a model-based approach to estimating rates from range data? 
+
+### Background  
+
+* Measuring diversity is one of the central analytical features of evolutionary analysis; however, data granlularity can limit our ability to estimate diversity (particularly poor or limited data on frequencies) 
+* Build from previous attempts to model richness (draw from paleobiologists, Raup, Sepkoski, Silvestro), which suggest that richness may not be able to model micro-evolutionary processes (selection, mutation, drift) but are able to model macro-changes in the mode and tempo of evolutionary change (perhaps mode, but not always)
+* Cultural evolutionary studies have only relied on phylogenetic analysis to get at some of the issues, but other tools are available.  
+
+### Material and Methods
+
+The strucutre of the analysis include the following:
+
+1. Generate a variety of sample data sets, based on a neutral model, under different conditions. This includes:
+* Population Growth
+    - Equilibrium (no pop change)
+    - Linear population growh
+    - Logistic population growth
+    - Cyclical population growth
+    
+* Innovation Rates
+    - Equililbrium (no change)
+    - Key Innovation (single major increase in innovation rate)
+    - Gradual / Incremental Innovation (a series of small increased in innovation rate) 
+
+* Changes in cultural transmission
+    - Equilibrium (b = 0)
+    - Conformist to Anti-Conformist
+    - Anti-Conformist to Conformist
+    
+2. Calculate the expected changes in richness and diversification rates (origination, extinction, net diversification, turnover) based on the expectations of the netural model
+
+3. Calculate the empirical values and confidence intervals of richness and diversification rates from a large number of replicated datasets 
+
+4. Estimate diversification rates using an underlying birth-death model of diversification (i.e PyRate).
+
+5. Compare the expected, empirical, and modeled results. The expected values require us to know the frequencies of different cultural variants, whereas the empirical and modeled results only require range data (richness plus dates)
+
+### Discusssion 
+
+TBD
+
+### Conclusion
+
+TBD
+
+
+## Current Workflow
+
+### Step 1. Load the cult_temp_functions.R file. This includes the following functions
+* random_names()* - assigns random letter sequences to variants
+* sig_growth() - creates a logistic population growth model based on N1 (starting pop size) and N2 (ending pop size)
+* expo_growth() - creates a exponential population growth model based on N1 (starting pop size) and N2 (ending pop size)
+* cyclical() - creates a cyclical growth model (sinusoidal) based on N1 (starting pop size) and N2 (ending pop size)
+* neutral() - creates data matrix of variants (rows) and variant frequencies in each time step (columns) based on the parameters of population size (N) and innovation rate (mu) at each time step
+* netural_replicates() - replicates the neutral model the desired number of times and outputs these as a list
+* matrix_to_literate() - transforms single data matrix into LiteRate format (range data)
+* empirical_values() - calculates key empirical measures from replicates (Richness, # of New Varaints, # of Loss Variants, Innovation Rate, Origination Rate, Extinction Rate, Net Diversification Rate, Longevity, Turnover Rate)
+* empirical_summary() - summarises empirical measures into separate lists
+* exp.stn.div() - calculates expected richness (i.e. standing diversity) based on population size and innovation rate
+* freqBias() - Similar to neutral functions, except also includes a frequncy bias transmission parameter (Currently under development
+
+```{r, eval=TRUE,message=FALSE,warning=FALSE}
+library(tidyverse)
+source("~/Dropbox/cult_tempo/cult_tempo_functions.R")
+#source from GitHub once committed
+```
+
+### Step 2. Set Global Parameter Settings for Model
+
+```{r, eval=TRUE}
+#Global model settings
+ts = 50 # number of timesteps
+warm = 500 #number of warmup timesteps
+rep = 500 #number of neutral model replicates to create
+```
+
+### Step 3. Create Evolutionary Dynamics
+
+#### Population Growth
+
+* Population models include linear, logistic, exponential and cyclical based on the starting and ending population sizes
+```{r, eval=TRUE}
+#Population Size
+N1 = 1000 #starting population size
+N2 = 3000 #ending population size
+
+#Innovation Rate
+mu1 = 0.01 #starting innovation rate
+mu2 = 0.01 #ending innovation rate
+
+#Strength of Frequency Bias Transmission (Under Development)
+b1 = 0 #starting strength of transmission
+b2 = 0 #ending strength of transmission
+
+pop_sizes <- tibble(timesteps = seq(ts, 1, -1)) %>% 
+  mutate(linear=seq(from = N1, to = N2, length.out = length(timesteps))) %>%
+  mutate(logistic = sig_growth(timesteps, assympote = N2, lower_bound = N1, midpoint = median(timesteps), scale = 0.2)) %>%
+  mutate(exponetial  = expo_growth(timesteps, upper_bound = N2, lower_bound = N1, scale = 0.1)) %>%
+  mutate(cycle = cyclical(timesteps, midpoint = (N2+N1)/2, amplitude = N2-(N2+N1)/2, scale = 4))
+```
+
+```{r,eval=TRUE,echo=FALSE}
+plot(x=seq(ts,1,-1),y=seq(N1,N2,length.out = ts),type="n",ylab="Pop Size",xlab="Time",xlim=c(ts,1),bty="n")
+lines(pop_sizes$timesteps,pop_sizes$linear,col="black")
+lines(pop_sizes$timesteps,pop_sizes$logistic,col="blue")
+lines(pop_sizes$timesteps,pop_sizes$exponetial,col="firebrick")
+lines(pop_sizes$timesteps,pop_sizes$cycle,col="goldenrod4")
+```
+
+#### Innovations
+
+* Innovation models include key invention (single large change in innovation rate), incremental innovation (gradual small changes in innovation rate)
+
+```{r, eval=TRUE}
+#Population Size
+N1 = 1000 #starting population size
+N2 = 1000 #ending population size
+
+#Innovation Rate
+mu1 = 0.01 #starting innovation rate
+mu2 = 0.05 #ending innovation rate
+
+mu_shifts <- seq(from=1,to=ts,by=1)
+mu_values <- seq(from=mu1, to=mu2, length.out = ts)
+innov_linear <- innovation_rate(mu_shifts = mu_shifts, mu_values=mu_values, ts = ts)
+
+mu_shifts <- c(1,25)
+mu_values <- c(0.01,0.05)
+innov_key_invention <- innovation_rate(mu_shifts = mu_shifts, mu_values=mu_values, ts = ts)
+
+mu_shifts <- c(1,11,21,31,41)
+mu_values <- c(0.01, 0.02, 0.03, 0.04, 0.05)
+innov_incremental <- innovation_rate(mu_shifts = mu_shifts, mu_values=mu_values, ts = ts)
+
+innov_rates <- tibble(timesteps = seq(ts, 1, -1)) %>% 
+  mutate(linear = innov_linear) %>%
+  mutate(invention = innov_key_invention) %>%
+  mutate(incremental  = innov_incremental)
+
+#Strength of Frequency Bias Transmission (Under Development)
+b1 = 0 #starting strength of transmission
+b2 = 0 #ending strength of transmission
+```
+
+```{r,eval=TRUE,echo=FALSE}
+plot(x=seq(ts,1,-1),y=seq(mu1,mu2,length.out = ts),type="n",ylab="Innovation Rates",xlab="Time",xlim=c(ts,1),bty="n")
+lines(innov_rates$timesteps,innov_rates$linear,col="dodgerblue")
+lines(innov_rates$timesteps,innov_rates$invention,col="firebrick")
+lines(innov_rates$timesteps,innov_rates$incremental,col="goldenrod4")
+```
+
+
+### Frequency Bias Transmission
+
+* Transmission models include a cultural revolution (single large change in transmission) or gradual cultural change (multiple small changes in transmission)
+
+```{r, eval=FALSE}
+#Population Size
+N1 = 1000 #starting population size
+N2 = 1000 #ending population size
+
+#Innovation Rate
+mu1 = 0.01 #starting innovation rate
+mu2 = 0.01 #ending innovation rate
+
+#Strength of Frequency Bias Transmission (Under Development)
+b1 = -0.03 #starting strength of transmission
+b2 = 0.03 #ending strength of transmission
+
+cult_shifts <- seq(from=1,to=ts,by=1)
+b_values <- seq(from=b1, to=b2, length.out = ts)
+trans_linear <- trans_rate(cult_shifts = cult_shifts, b_values = b_values, ts = ts) 
+
+cult_shifts <- c(1,25)
+b_values <- c(-0.03,0.03)
+trans_single <- trans_rate(cult_shifts = cult_shifts, b_values=b_values, ts = ts)
+
+cult_shifts <- c(1,11,21,31,41)
+b_values <- c(-0.03, -0.01, 0, 0.01, 0.03)
+trans_multiple <- trans_rate(cult_shifts = cult_shifts, b_values=b_values, ts = ts)
+```
+
+
+### Step 4. Create Data from Neutral Models
+
+#### Population Growth
+
+```{r, eval=FALSE}
+#One Replicate
+neutral_linear <- neutral(N = pop_sizes$linear, mu = mu, warm = warm, ts = ts)
+neutral_logistic <- neutral(N = pop_sizes$logistic, mu = mu, warm = warm, ts = ts)
+neutral_exponential <- neutral(N = pop_sizes$exponetial, mu = mu, warm = warm, ts = ts)
+neutral_cycle <- neutral(N = pop_sizes$cycle, mu = mu, warm = warm, ts = ts)
+```
+
+These functions make multiple replicates in order to identify the envelope of empirical values. These are also saved as a RData object and can be easily loaded in for plotting without having to go through the replicates procedure. 
+
+```{r,eval=FALSE}
+#Multiple Replicates
+neutral_linear_reps <- neutral_replicates(N = pop_sizes$linear, mu = mu, warm = warm, ts = ts, reps = rep)
+neutral_linear_empirical<-lapply(neutral_linear_reps,empirical_values)
+neutral_linear_summary <- empirical_summary(neutral_linear_empirical)
+
+neutral_logistic_reps <- neutral_replicates(N = pop_sizes$logistic, mu = mu, warm = warm, ts = ts, reps = rep)
+neutral_logistic_empirical<-lapply(neutral_logistic_reps,empirical_values)
+neutral_logistic_summary <- empirical_summary(neutral_logistic_empirical)
+
+neutral_exponential_reps <- neutral_replicates(N = pop_sizes$exponetial, mu = mu, warm = warm, ts = ts, reps = rep)
+neutral_exponential_empirical<-lapply(neutral_exponential_reps,empirical_values)
+neutral_exponential_summary <- empirical_summary(neutral_exponential_empirical)
+
+neutral_cycle_reps <- neutral_replicates(N = pop_sizes$cycle, mu = mu, warm = warm, ts = ts, reps = rep)
+neutral_cycle_empirical<-lapply(neutral_cycle_reps,empirical_values)
+neutral_cycle_summary <- empirical_summary(neutral_cycle_empirical)
+
+save(ts,warm,rep,N,mu,b,
+     pop_sizes,
+     neutral_linear_summary,
+     neutral_logistic_summary,
+     neutral_exponential_summary,
+     neutral_cycle_summary,exp.std.div,
+     file="neutural_pop_data.RData")
+```
+
+#### Innovation Rate
+
+```{r, eval=FALSE}
+N = rep(N1,ts)
+neu_innov_linear <- neutral(N = N, mu = innov_rates$linear, warm = warm, ts = ts)
+neu_innov_invention <- neutral(N = N, mu = innov_rates$invention, warm = warm, ts = ts)
+neu_innov_incremental <- neutral(N = N, mu = innov_rates$incremental, warm = warm, ts = ts)
+```
+
+```{r,eval=FALSE}
+neu_innov_linear_reps <- neutral_replicates(N = N, mu = innov_rates$linear, warm = warm, ts = ts, reps = rep)
+neu_innov_linear_empirical<-lapply(neu_innov_linear_reps,empirical_values)
+neu_innov_linear_summary <- empirical_summary(neu_innov_linear_empirical)
+
+neu_innov_invention_reps <- neutral_replicates(N = N, mu = innov_rates$invention, warm = warm, ts = ts, reps = rep)
+neu_innov_invention_empirical<-lapply(neu_innov_invention_reps,empirical_values)
+neu_innov_invention_summary <- empirical_summary(neu_innov_invention_empirical)
+
+neu_innov_incremental_reps <- neutral_replicates(N = N, mu = innov_rates$incremental, warm = warm, ts = ts, reps = rep)
+neu_innov_incremental_empirical<-lapply(neu_innov_incremental_reps,empirical_values)
+neu_innov_incremental_summary <- empirical_summary(neu_innov_incremental_empirical)
+
+save(ts,warm,rep,N,
+     innov_rates,
+     neu_innov_linear_summary,
+     neu_innov_invention_summary,
+     neu_innov_incremental_summary,
+     file="neutral_innov_data.RData")
+```
+
+#### Trans Rates (Under Development)
+
+TBD
+
+### Step 5. Model Rates using LiteRate
+
+1. In order to use LiteRate, we first need to transform the raw data from the neutral model into LiteRate Format.
+
+```{r, eval=FALSE}
+#Population Growth
+neutral_linear_LiteRate<-matrix_to_literate(neutral_linear)
+write.table(neutral_linear_LiteRate,"neutral_linear_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+
+neutral_logistic_LiteRate<-matrix_to_literate(neutral_logistic)
+write.table(neutral_logistic_LiteRate,"neutral_logistic_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+
+neutral_exponential_LiteRate<-matrix_to_literate(neutral_exponential)
+write.table(neutral_exponential_LiteRate,"neutral_exponential_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+
+neutral_cycle_LiteRate<-matrix_to_literate(neutral_cycle)
+write.table(neutral_cycle_LiteRate,"neutral_cycle_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+```
+
+```{r,eval=FALSE}
+#Innovation Rates
+neu_innov_linear_LiteRate<-matrix_to_literate(neu_innov_linear)
+write.table(neu_innov_linear_LiteRate,"neu_innov_linear_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+
+neu_innov_invention_LiteRate<-matrix_to_literate(neu_innov_invention)
+write.table(neu_innov_invention_LiteRate,"neu_innov_invention_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+
+neu_innov_incremental_LiteRate<-matrix_to_literate(neu_innov_incremental)
+write.table(neu_innov_incremental_LiteRate,"neu_innov_incremental_LiteRate.txt",quote = FALSE, sep="\t",row.names = FALSE)
+```
+
+```{r, eval=FALSE}
+#Frequency Transmission - TBD
+```
+
+2. We are then able to evaluate our data in LiteRate, by opening a Terminal (Apple) and executing the following commands. A tutorial for the application of LiteRate can be found (here)[http://www.dysoc.org/cesmodules/diversification_module/]
+
+```{bash, eval=FALSE}
+#Population Growth Model
+#-n 10000000 (default number of mcmc iterations)
+#-s 1000 (default sampling frequency)
+#-TBP means dates are in Time Before Present)
+python3 LiteRateForward.py -d ~/neutral_linear_LiteRate.txt -TBP #population linear 
+python3 LiteRateForward.py -d ~/neutral_logistic_LiteRate.txt -TBP #population linear 
+python3 LiteRateForward.py -d ~/neutral_exponential_LiteRate.txt -TBP #population linear 
+python3 LiteRateForward.py -d ~/neutral_cycle_LiteRate.txt -TBP #population linear 
+
+#Innovation Rate Models
+python3 LiteRateForward.py -d ~/neu_innov_linear_LiteRate.txt -TBP #innovation linear 
+python3 LiteRateForward.py -d ~/neu_innov_invention_LiteRate.txt -TBP #innovation linear 
+python3 LiteRateForward.py -d ~/neu_innov_incremental_LiteRate.txt -TBP #innovation linear 
+```
+
+3. Once LiteRate results are finished, they can be plotted and the raw data can be obtained with the following command:
+
+```{bash, eval=FALSE}
+#Burn-in set to 20%, meaning the first 20% of sampeles are discarded
+python3 plotRJforward.vs.py ~/literate_mcmc_logs/ -TBP -burnin 0.2
+```
+
+Note: When multiple LiteRate files are plotted together, the R object names become overwritten. It may be necessary to re-name these objects manually in order to plot in R (as was done here).  
+
+### Step 6. Visualising results and comparing data
+
+1. Load in the data from empirical replicates and LiteRate (all of the steps above)
+
+```{r, eval=TRUE, message=FALSE}
+setwd("~/Dropbox/cult_tempo/") #adjust to GitHub when ready
+library(scales)
+
+load("neutural_pop_data.RData") #Empirical Replicate Data
+source("./neutral_population/neutral_population_literate_raw.R") #Modified (Re-named) Raw Data from LiteRate
+```
+
+2. Calculate expected values under a neutral model based on values of N and mu
+
+```{r, eval=FALSE}
+#Population Growth - Linear
+exp_richness_linear<-apply(matrix(c(pop_sizes$linear,mu),nrow=ts,ncol=2),1,function(x){return(exp.std.div(x[1],x[2]))})
+exp_orig_rate_linear <- pop_sizes$linear*mu / exp_richness_linear
+exp_ex_rate_linear <- pop_sizes$linear*mu / exp_richness_linear
+exp_net_rate_linear <- exp_orig_rate_linear - exp_ex_rate_linear
+exp_longevity_linear <- 1 / exp_ex_rate_linear
+exp_turnover_linear <- exp_orig_rate_linear / exp_ex_rate_linear
+
+#Population Growth - Logistic
+exp_richness_logistic<-apply(matrix(c(pop_sizes$logistic,mu),nrow=ts,ncol=2),1,function(x){return(exp.std.div(x[1],x[2]))})
+exp_orig_rate_logistic <- pop_sizes$logistic*mu / exp_richness_logistic
+exp_ex_rate_logistic <- pop_sizes$logistic*mu / exp_richness_logistic
+exp_net_rate_logistic <- exp_orig_rate_logistic - exp_ex_rate_logistic
+exp_longevity_logistic <- 1 / exp_ex_rate_logistic
+exp_turnover_logistic <- exp_orig_rate_logistic / exp_ex_rate_logistic
+
+#Population Growth - Exponential
+exp_richness_exponential<-apply(matrix(c(pop_sizes$exponetial,mu),nrow=ts,ncol=2),1,function(x){return(exp.std.div(x[1],x[2]))})
+exp_orig_rate_exponential <- (pop_sizes$exponetial*mu) / exp_richness_exponential
+exp_ex_rate_exponential <- (pop_sizes$exponetial*mu) / exp_richness_exponential
+exp_net_rate_exponential <- exp_orig_rate_exponential - exp_ex_rate_exponential
+exp_longevity_exponential <- 1 / exp_ex_rate_exponential
+exp_turnover_exponential <- exp_orig_rate_exponential / exp_ex_rate_exponential
+
+#Population Growth - Cycle
+exp_richness_cycle<-apply(matrix(c(pop_sizes$cycle,mu),nrow=ts,ncol=2),1,function(x){return(exp.std.div(x[1],x[2]))})
+exp_orig_rate_cycle <- N*mu / exp_richness_cycle
+exp_ex_rate_cycle <- N*mu / exp_richness_cycle
+exp_net_rate_cycle <- exp_orig_rate_cycle - exp_ex_rate_cycle
+exp_longevity_cycle <- 1 / exp_ex_rate_cycle
+exp_turnover_cycle <- exp_orig_rate_cycle / exp_ex_rate_cycle
+```
+
+#### Innovation Rates
+```{r, eval=FALSE}
+#TBD
+```
+
+#### Transmission Rates
+```{r, eval=FALSE}
+#TBD
+```
+
+3. Plot Rates
+* Empirical Rates and Mean (Faded Lines and Solid Color Line)
+* Expected Rates (Dashed Black Line)
+* Modeled Rates and Mean (Shaded Area and Solid Color Line)
+
+##### Linear Population Growth
+```{r, echo=FALSE, eval=FALSE}
+png("Population_Linear.png",width=20,height=8,units="in",res=300)
+par(mfrow=c(1,6))
+#Richness
+plot(x=time,y=exp_richness_linear,type="n",xlim=c(ts,1),ylim=c(0,250),
+     ylab='',main="Richness",xlab="Time",bty="n")
+apply(neutral_linear_summary$Richness,MAR=2,lines,col=alpha('sienna',0.01),lwd=1,x=seq(ts,1,by=-1))
+lines(x=time,y=rowMeans(neutral_linear_summary$Richness),lwd=3,col="sienna")
+lines(x=time,y=exp_richness_linear,lty=2,lwd=1,col="black")  
+lines(x=-neutral_linear_time[lite_start:lite_end],y=neutral_linear_net_diversity[lite_start:lite_end],
+      col="goldenrod4",lwd=2)
+
+#Origination Rate
+plot(x=time,y=exp_orig_rate_linear,type="n",xlim=c(ts,1),ylim=c(0,0.3),
+     ylab='',main="Origination",xlab="Time",bty="n")
+apply(neutral_linear_summary$Orig_Rate,MAR=2,lines,col=alpha('dodgerblue',0.01),lwd=1,x=seq(ts,1,by=-1))
+lines(x=time,y=rowMeans(neutral_linear_summary$Orig_Rate),lwd=2,col="dodgerblue")
+lines(x=time,y=exp_orig_rate_linear,lty=2,lwd=1,col="black")  
+lines(x=-neutral_linear_time[lite_start:lite_end],y=neutral_linear_orig_rate[lite_start:lite_end],col="navyblue")
+polygon(x=c(-neutral_linear_time[lite_start:lite_end],rev(-neutral_linear_time[lite_start:lite_end])), 
+        y=c(neutral_linear_orig_maxHPD[lite_start:lite_end], rev(neutral_linear_orig_minHPD[lite_start:lite_end])), 
+        col = alpha("navyblue",0.3), border = NA)
+
+#Extinction Rate
+plot(x=time,y=exp_ex_rate_linear,type="n",xlim=c(ts,1),ylim=c(0,0.3),
+     ylab='',main="Extinction",xlab="Time",bty="n")
+apply(neutral_linear_summary$Ex_Rate,MAR=2,lines,col=alpha('firebrick',0.01),lwd=1,x=seq(ts,1,by=-1))
+lines(x=time,y=rowMeans(neutral_linear_summary$Ex_Rate),lwd=2,col="firebrick")
+lines(x=time,y=exp_ex_rate_linear,lty=2,lwd=1,col="black")  
+lines(x=-neutral_linear_time[lite_start:lite_end],y=neutral_linear_ex_rate[lite_start:lite_end],col="firebrick")
+polygon(x=c(-neutral_linear_time[lite_start:lite_end],rev(-neutral_linear_time[lite_start:lite_end])), 
+        y=c(neutral_linear_ex_maxHPD[lite_start:lite_end], rev(neutral_linear_ex_minHPD[lite_start:lite_end])), 
+        col = alpha("firebrick",0.3), border = NA)
+
+#Net Diversification Rate
+plot(x=time,y=exp_net_rate_linear,type="n",xlim=c(ts,1),ylim=c(-0.3,0.3),
+     ylab='',main="Net Diversification",xlab="Time",bty="n")
+apply(neutral_linear_summary$Net_Rate,MAR=2,lines,col=alpha('purple4',0.01),lwd=1,x=seq(ts,1,by=-1))
+lines(x=time,y=rowMeans(neutral_linear_summary$Net_Rate),lwd=2,col="purple4")
+lines(x=time,y=exp_net_rate_linear,lty=2,lwd=1,col="black")  
+lines(x=-neutral_linear_time[lite_start:lite_end],y=neutral_linear_net_rate[lite_start:lite_end],col="purple4")
+polygon(x=c(-neutral_linear_time[lite_start:lite_end],rev(-neutral_linear_time[lite_start:lite_end])), 
+        y=c(neutral_linear_net_maxHPD[lite_start:lite_end], rev(neutral_linear_net_minHPD[lite_start:lite_end])), 
+        col = alpha("purple4",0.3), border = NA)
+
+#Longevity
+neutral_linear_longevity_rate <- 1 / neutral_linear_ex_rate
+neutral_linear_longevity_maxHPD <- 1 / neutral_linear_ex_maxHPD
+neutral_linear_longevity_minHPD <- 1 / neutral_linear_ex_minHPD
+
+plot(x=time,y=exp_longevity_linear,type="n",xlim=c(ts,1),ylim=c(0,30),
+     ylab='',main="Longevity",xlab="Time",bty="n")
+apply(neutral_linear_summary$Longevity,MAR=2,lines,col=alpha('orange',0.01),lwd=1,x=seq(ts,1,by=-1))
+lines(x=time,y=rowMeans(neutral_linear_summary$Longevity),lwd=2,col="orange")
+lines(x=time,y=exp_longevity_linear,lty=2,lwd=1,col="black")  
+lines(x=-neutral_linear_time[lite_start:lite_end],y=neutral_linear_longevity_rate[lite_start:lite_end],col="orange")
+polygon(x=c(-neutral_linear_time[lite_start:lite_end],rev(-neutral_linear_time[lite_start:lite_end])), 
+        y=c(neutral_linear_longevity_maxHPD[lite_start:lite_end], rev(neutral_linear_longevity_minHPD[lite_start:lite_end])), 
+        col = alpha("orange",0.3), border = NA)
+
+#Turnover Rate
+neutral_linear_turnover_rate <- neutral_linear_orig_rate / neutral_linear_ex_rate
+neutral_linear_turnover_maxHPD <- neutral_linear_orig_maxHPD / neutral_linear_ex_maxHPD
+neutral_linear_turnover_minHPD <- neutral_linear_orig_minHPD / neutral_linear_ex_minHPD
+
+plot(x=time,y=exp_turnover_linear,type="n",xlim=c(ts,1),ylim=c(0,3),
+     ylab='',main="Turnover",xlab="Time",bty="n")
+apply(neutral_linear_summary$Turnover_Rate,MAR=2,lines,col=alpha('springgreen4',0.01),lwd=1,x=seq(ts,1,by=-1))
+lines(x=time,y=rowMeans(neutral_linear_summary$Turnover_Rate),lwd=2,col="springgreen4")
+lines(x=time,y=exp_turnover_linear,lty=2,lwd=1,col="black")  
+lines(x=-neutral_linear_time[lite_start:lite_end],y=neutral_linear_turnover_rate[lite_start:lite_end],col="springgreen4")
+polygon(x=c(-neutral_linear_time[lite_start:lite_end],rev(-neutral_linear_time[lite_start:lite_end])), 
+        y=c(neutral_linear_turnover_maxHPD[lite_start:lite_end], rev(neutral_linear_turnover_minHPD[lite_start:lite_end])), 
+        col = alpha("springgreen4",0.3), border = NA)
+
+dev.off()
+```
+
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("Population_Linear.png")
+```
+
+#### Logistic Population Growth
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("Population_logistic.png")
+```
+
+#### Exponential Population Growth
+
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("Population_exponential.png")
+```
+
+#### Cyclical Population Growth
+
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("Population_cycle.png")
+```
+
+#### Linear Innovation 
+
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("Innovation_Linear.png")
+```
+
+#### Key Invention Innovation
+
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("Innovation_Invention.png")
+```
+
+#### Incremental Innovations
+
+```{r,out.height="100%",out.width="100%",message=FALSE,echo=FALSE}
+knitr::include_graphics("innovation_incremental.png")
+```
