@@ -88,12 +88,12 @@ This supplemental information contains the code and data necessary to reproduce 
 
 ## Pre-Analysis Preparation 
 
-Prior to performing the analysis summarises above, we need to first load in the necessary functions and packages that will be used throughout this analysis.
+Prior to performing the analysis summarises above, we need to first load in the necessary functions and packages that will be used throughout this analysis. This can be done by sourcing the file from the GitHub repository:
 
 ```{r, eval=FALSE,message=FALSE,warning=FALSE}
-source("cult_tempo_functions.R") #Source from GitHub
-
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/cult_tempo_functions.R")
 library(tidyverse)
+library(scales)
 ```
 
 All of the bespoke functions used in this analysis are contained within the cult_tempo_functions.R file. A summary of these functions are:
@@ -511,38 +511,62 @@ Programming Note: When multiple LiteRate files are plotted together, the R objec
 ```{r, eval=FALSE, message=FALSE}
 #Note: these have been renamed manually
 #Scenario A
-source("pop_linear_combined_raw.r")
-source("innov_linear_combined_raw.r")
-source("trans_linear_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/pop_linear_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/innov_linear_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/trans_linear_combined_raw.r")
+
+#source("pop_linear_combined_raw.r")
+#source("innov_linear_combined_raw.r")
+#source("trans_linear_combined_raw.r")
 
 #Scenario B
-source("pop_exponential_combined_raw.r")
-source("innov_incremental_combined_raw.r")
-source("trans_multiple_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/pop_exponential_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/innov_incremental_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/trans_multiple_combined_raw.r")
+
+#source("pop_exponential_combined_raw.r")
+#source("innov_incremental_combined_raw.r")
+#source("trans_multiple_combined_raw.r")
 
 #Scenario C
-source("pop_logistic_combined_raw.r")
-source("innov_invention_combined_raw.r")
-source("trans_single_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/pop_logistic_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/innov_invention_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/complete_data/trans_single_combined_raw.r")
+
+#source("pop_logistic_combined_raw.r")
+#source("innov_invention_combined_raw.r")
+#source("trans_single_combined_raw.r")
 ```
 
 And for the incomplete data, these can be loaded using the following:
 
 ```{r, eval=FALSE, message=FALSE}
 #Scenario A
-source("ta_pop_linear_5_samp_.1_raw.r")
-source("ta_innov_linear_5_samp_.1_raw.r")
-source("ta_trans_linear_combined_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_pop_linear_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_innov_linear_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_trans_linear_5_samp_.1_raw.r")
+
+#source("ta_pop_linear_5_samp_.1_raw.r")
+#source("ta_innov_linear_5_samp_.1_raw.r")
+#source("ta_trans_linear_combined_raw.r")
 
 #Scenario B
-source("ta_pop_exponential_5_samp_.1_raw.r")
-source("ta_innov_incremental_5_samp_.1_raw.r")
-source("ta_trans_multiple_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_pop_exponential_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_innov_incremental_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_trans_multiple_5_samp_.1_raw.r")
+
+#source("ta_pop_exponential_5_samp_.1_raw.r")
+#source("ta_innov_incremental_5_samp_.1_raw.r")
+#source("ta_trans_multiple_5_samp_.1_raw.r")
 
 #Scenario C
-source("ta_pop_logistic_5_samp_.1_raw.r")
-source("ta_innov_invention_5_samp_.1_raw.r")
-source("ta_trans_single_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_pop_logistic_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_innov_invention_5_samp_.1_raw.r")
+source("https://raw.githubusercontent.com/erikgjes/Diversification_Rates_of_Richness_Data/master/incomplete_data/ta_trans_single_5_samp_.1_raw.r")
+
+#source("ta_pop_logistic_5_samp_.1_raw.r")
+#source("ta_innov_invention_5_samp_.1_raw.r")
+#source("ta_trans_single_5_samp_.1_raw.r")
 ```
 
 ## Post-Analysis Visualisation 
@@ -550,7 +574,6 @@ source("ta_trans_single_5_samp_.1_raw.r")
 The most valuable visualisation of LiteRate results is the creation of a rate-through-time plot and the frequency of rate shifts. Please see manuscript text for a detailed description of these plots and their interpretations. Here, we will re-create Figures 3, 4, and 5, which include the rate-through-time plots for Scenarios A, B, and C. Plots for incomplete data (Figure 6) use the same code, but simply call the R objects from the other R scripts (`pop_exponential_combined_raw.r`, `innov_incremental_combined_raw.r`, etc.)
 
 ```{r,eval=FALSE}
-library(scales)
 ts = 50
 lite_start = 48
 lite_end = 3
@@ -1145,7 +1168,7 @@ segments(x0=-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end
 
 plot(x=sp_rate_trans_single_time[lite_start:lite_end],
      y=sp_rate_trans_single_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,1),xlab="Time (BP)",bty="n",
+     type="n",xlim=c(ts,1),ylim=c(0,1.2),xlab="Time (BP)",bty="n",
      ylab="Rate of Change", cex.lab = 1.5)
 lines(x=-sp_rate_trans_single_time[lite_start:lite_end],
       y=sp_rate_trans_single_rate[lite_start:lite_end],
@@ -1172,8 +1195,8 @@ segments(x0=-ex_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5
 dev.off()
 ```
 
-```{r,eval=FALSE,out.height="100%",out.width="100%",message=FALSE,echo=FALSE,fig.align="left"}
-knitr::include_graphics("Figure_6_TA_Samp_plots.png")
+```{r,eval=TRUE,out.height="100%",out.width="100%",message=FALSE,echo=FALSE,fig.align="left"}
+knitr::include_graphics("Figure_6_Time_Samp.png")
 ```
 
 An additional supplemental figure not provided in the text the mean richness for the incomplete data, which can be visualised with the following code:
@@ -1181,6 +1204,10 @@ An additional supplemental figure not provided in the text the mean richness for
 ```{r, eval=FALSE}
 ta_lite_start = 1
 ta_lite_end = 10
+
+png("Figure_S1_TA_Samp_Richness.png",width = 6, height = 10, units = "in", res = 300)
+par(mfrow=c(3,1))
+par(mar=c(4.1,4.1,4.1,1.1))
 
 #Scenario A
 plot(x=sp_rate_ta_pop_linear_5_samp_.1_time[lite_start:lite_end],
@@ -1195,7 +1222,7 @@ lines(x=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=diversity_ta_innov_linear_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
       col="grey20",lty=2,lwd=2)
 lines(x=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_trans_linear_s5_amp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_trans_linear_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
       col="grey40",lty=3,lwd=2)
 mtext(side=2,line=-2,at=50,"A",las=2,cex=1.5)
 
@@ -1232,6 +1259,13 @@ lines(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=diversity_ta_trans_single_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
       col="grey40",lty=3,lwd=2)
 mtext(side=2,line=-2,at=50,"C",las=2,cex=1.5)
+
+dev.off()
+```
+
+
+```{r,eval=TRUE,out.height="100%",out.width="100%",message=FALSE,echo=FALSE,fig.align="left"}
+knitr::include_graphics("Figure_S1_TA_Samp_Richness.png")
 ```
 
 ## Conclusion
