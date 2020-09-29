@@ -939,7 +939,7 @@ knitr::include_graphics("Figure_5_Scenario_C_Comparison.png")
 And finally, the comparison between diversification rates estimated from complete and incomplete data can visualised with the following plot code:
 
 ```{r, eval=FALSE}
-ta_lite_start = 2 #As noted above, due to some lingering edge effects in LiteRate, the first data point is not plotted
+ta_lite_start = 1 #As noted above, due to some lingering edge effects in LiteRate, the first data point is not plotted
 ta_lite_end = 10
 
 png("Figure_6_Time_Samp.png",width = 10, height = 10, units = 'in', res = 300)
@@ -949,16 +949,10 @@ par(mar=c(4.1, 4.5, 3.1, 0.1))
 
 ########## Scenario A #############
 
-plot(x=sp_rate_pop_linear_time[lite_start:lite_end],
-     y=sp_rate_pop_linear_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      ylab="Rate of Change", cex.lab = 1.5)
-lines(x=-sp_rate_pop_linear_time[lite_start:lite_end],
-      y=sp_rate_pop_linear_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_pop_linear_time[lite_start:lite_end],
-      y=ex_rate_pop_linear_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -988,16 +982,10 @@ mtext("A1",cex=1.5,side=3,line=-2,at=25)
 mtext("Population",cex=1.5,side=3,line=1,at=25)
 
 
-plot(x=sp_rate_innov_linear_time[lite_start:lite_end],
-     y=sp_rate_innov_linear_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      yaxt="n", ylab="",cex.lab = 1.5)
-lines(x=-sp_rate_innov_linear_time[lite_start:lite_end],
-      y=sp_rate_innov_linear_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_innov_linear_time[lite_start:lite_end],
-      y=ex_rate_innov_linear_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1027,17 +1015,11 @@ polygon(x=c(-ex_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5
 mtext("A2",cex=1.5,side=3,line=-2,at=25)
 mtext("Innovation",cex=1.5,side=3,line=1,at=25)
 
-plot(x=sp_rate_trans_linear_time[lite_start:lite_end],
-     y=sp_rate_trans_linear_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      yaxt="n", ylab="",
      cex.lab = 1.5)
-lines(x=-sp_rate_trans_linear_time[lite_start:lite_end],
-      y=sp_rate_trans_linear_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_trans_linear_time[lite_start:lite_end],
-      y=ex_rate_trans_linear_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1068,16 +1050,10 @@ mtext("A3",cex=1.5,side=3,line=-2,at=25)
 mtext("Frequency-Bias",cex=1.5,side=3,line=1,at=25)
 
 ##### Row 2 #######
-plot(x=sp_rate_pop_exponential_time[lite_start:lite_end],
-     y=sp_rate_pop_exponential_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      ylab="Rate of Change", cex.lab = 1.5)
-lines(x=-sp_rate_pop_exponential_time[lite_start:lite_end],
-      y=sp_rate_pop_exponential_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_pop_exponential_time[lite_start:lite_end],
-      y=ex_rate_pop_exponential_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1106,16 +1082,10 @@ polygon(x=c(-ex_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end
         col = alpha("firebrick",0.3), border = NA)
 mtext("B1",cex=1.5,side=3,line=-2,at=25)
 
-plot(x=sp_rate_innov_incremental_time[lite_start:lite_end],
-     y=sp_rate_innov_incremental_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      yaxt="n", ylab="", cex.lab = 1.5)
-lines(x=-sp_rate_innov_incremental_time[lite_start:lite_end],
-      y=sp_rate_innov_incremental_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_innov_incremental_time[lite_start:lite_end],
-      y=ex_rate_innov_incremental_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1144,16 +1114,10 @@ polygon(x=c(-ex_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_e
         col = alpha("firebrick",0.3), border = NA)
 mtext("B2",cex=1.5,side=3,line=-2,at=25)
 
-plot(x=sp_rate_trans_multiple_time[lite_start:lite_end],
-     y=sp_rate_trans_multiple_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      yaxt="n", ylab="", cex.lab = 1.5)
-lines(x=-sp_rate_trans_multiple_time[lite_start:lite_end],
-      y=sp_rate_trans_multiple_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_trans_multiple_time[lite_start:lite_end],
-      y=ex_rate_trans_multiple_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1184,16 +1148,10 @@ mtext("B3",cex=1.5,side=3,line=-2,at=25)
 
 
 ######Row 3#########
-plot(x=sp_rate_pop_logistic_time[lite_start:lite_end],
-     y=sp_rate_pop_logistic_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      ylab="Rate of Change", cex.lab = 1.5)
-lines(x=-sp_rate_pop_logistic_time[lite_start:lite_end],
-      y=sp_rate_pop_logistic_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_pop_logistic_time[lite_start:lite_end],
-      y=ex_rate_pop_logistic_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1222,16 +1180,10 @@ polygon(x=c(-ex_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5
         col = alpha("firebrick",0.3), border = NA)
 mtext("C1",cex=1.5,side=3,line=-2,at=25)
 
-plot(x=sp_rate_innov_invention_time[lite_start:lite_end],
-     y=sp_rate_innov_invention_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      yaxt="n", ylab="", cex.lab = 1.5)
-lines(x=-sp_rate_innov_invention_time[lite_start:lite_end],
-      y=sp_rate_innov_invention_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_innov_invention_time[lite_start:lite_end],
-      y=ex_rate_innov_invention_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
@@ -1260,16 +1212,10 @@ polygon(x=c(-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end
         col = alpha("firebrick",0.3), border = NA)
 mtext("C2",cex=1.5,side=3,line=-2,at=25)
 
-plot(x=sp_rate_trans_single_time[lite_start:lite_end],
-     y=sp_rate_trans_single_rate[lite_start:lite_end],
+plot(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end],
+     y=sp_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end],
      type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
      yaxt="n", ylab="", cex.lab = 1.5)
-lines(x=-sp_rate_trans_single_time[lite_start:lite_end],
-      y=sp_rate_trans_single_rate[lite_start:lite_end],
-      col="navyblue",lwd=2)
-lines(x=-ex_rate_trans_single_time[lite_start:lite_end],
-      y=ex_rate_trans_single_rate[lite_start:lite_end],
-      col="firebrick",lwd=2)
 lines(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
       y=sp_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
