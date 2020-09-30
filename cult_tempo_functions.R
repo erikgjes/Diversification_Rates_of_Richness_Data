@@ -22,7 +22,7 @@ expo_growth <- function(timesteps, upper_bound, lower_bound, scale) {
   scale = scale
   x_mid = lower_bound - upper_bound
   est = upper_bound + (x_mid * (1 - exp(-scale*timesteps)))
-  return(est)
+  return(rev(est))
 }
 
 
