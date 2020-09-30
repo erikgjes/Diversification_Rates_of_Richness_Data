@@ -136,7 +136,7 @@ Changes in our parameters are broadly modeled based on three trajectories, with 
 N1 = 1000 #starting population size
 N2 = 3000 #ending population size
 
-pop_sizes <- tibble(timesteps = seq(ts, 1, -1)) %>% 
+pop_sizes <- tibble(timesteps = seq(1, 50, 1)) %>% 
   mutate(linear=round(seq(from = N1, to = N2, length.out = length(timesteps)))) %>% 
   mutate(exponential  = round(expo_growth(timesteps, upper_bound = N2, lower_bound = N1, scale = 0.1))) %>%
   mutate(logistic = round(sig_growth(timesteps, assympote = N2, lower_bound = N1, midpoint = median(timesteps), scale = 0.7)))
@@ -161,7 +161,7 @@ mu_shifts <- c(1,10,20,30,40)
 mu_values <- c(0.005, 0.00875, 0.0125, 0.01625, 0.02)
 innov_incremental <- innovation_rate(mu_shifts = mu_shifts, mu_values=mu_values, ts = ts)
 
-innov_rates <- tibble(timesteps = seq(ts, 1, -1)) %>% 
+innov_rates <- tibble(timesteps = seq(1, 50, 1)) %>% 
   mutate(linear = innov_linear) %>%
   mutate(invention = innov_key_invention) %>%
   mutate(incremental  = innov_incremental)
@@ -186,7 +186,7 @@ cult_shifts <- c(1,11,21,31,41)
 b_values <- c(-0.03, -0.01, 0, 0.01, 0.03)
 trans_multiple <- trans_rate(cult_shifts = cult_shifts, b_values=b_values, ts = ts)
 
-trans_rates <- tibble(timesteps = seq(ts, 1, -1)) %>% 
+trans_rates <- tibble(timesteps = seq(1, 50, 1)) %>% 
   mutate(linear = trans_linear) %>%
   mutate(single = trans_single) %>%
   mutate(multiple  = trans_multiple)
@@ -200,17 +200,17 @@ png("Figure_1_Models.png",width=6,height=10,units="in",res = 300)
 par(mfrow=c(3,1))
 par(mar=c(4.1,4.1,4.1,3.1))
 
-plot(x=seq(ts,1,-1),y=seq(N1,N2,length.out = ts),type="n",ylab=expression(paste("Population Size (", N, ")")),xlab="Time (BP)",xlim=c(ts,1),bty="n",main="Population")
+plot(x=seq(1,ts,1),y=seq(N1,N2,length.out = ts),type="n",ylab=expression(paste("Population Size (", N, ")")),xlab="Time",xlim=c(1,50),bty="n",main="Population")
 lines(pop_sizes$timesteps,pop_sizes$linear,col="black",lwd=2)
 lines(pop_sizes$timesteps,pop_sizes$exponential,col="black",lwd=2)
 lines(pop_sizes$timesteps,pop_sizes$logistic,col="black",lwd=2)
 
-plot(x=seq(ts,1,-1),y=seq(mu1,mu2,length.out = ts),type="n",ylab=expression(paste("Innovation Rates (", mu, ")")),xlab="Time (BP)",xlim=c(ts,1),bty="n",main="Innovation")
+plot(x=seq(1,ts,1),y=seq(mu1,mu2,length.out = ts),type="n",ylab=expression(paste("Innovation Rates (", mu, ")")),xlab="Time",xlim=c(1,ts),bty="n",main="Innovation")
 lines(innov_rates$timesteps,innov_rates$linear,col="black",lwd=2,lty=2)
 lines(innov_rates$timesteps,innov_rates$incremental,col="black",lwd=2,lty=2)
 lines(innov_rates$timesteps,innov_rates$invention,col="black",lwd=2,lty=2)
 
-plot(x=seq(ts,1,-1),y=seq(b1,b2,length.out = ts),type="n",ylab=expression(paste("Strength of Frequency Bias (", b, ")")), xlab="Time (BP)",xlim=c(ts,1),bty="n",main="Frequency Bias")
+plot(x=seq(1,ts,1),y=seq(b1,b2,length.out = ts),type="n",ylab=expression(paste("Strength of Frequency Bias (", b, ")")), xlab="Time",xlim=c(1,ts),bty="n",main="Frequency Bias")
 lines(trans_rates$timesteps,trans_rates$linear,col="black",lwd=2,lty=3)
 lines(trans_rates$timesteps,trans_rates$multiple,col="black",lwd=2,lty=3)
 lines(trans_rates$timesteps,trans_rates$single,col="black",lwd=2,lty=3)
@@ -237,7 +237,7 @@ b = rep(0, ts)
 pop_linear<- freqBias_replicates(N = pop_sizes$linear, mu = mu, b = b, warm = warm, ts = ts, reps = rep)
 pop_linear_empirical<-lapply(pop_linear,empirical_values)
 pop_linear_summary <- empirical_summary(pop_linear_empirical)
-#literate_rep_function(pop_linear,50,"pop_linear")
+literate_rep_function(pop_linear,50,"pop_linear")
 
 N = rep(2000,ts)
 b = rep(0,ts)
@@ -245,7 +245,7 @@ b = rep(0,ts)
 innov_linear<- freqBias_replicates(N = N, mu = innov_rates$linear, b = b, warm = warm, ts = ts, reps = rep)
 innov_linear_empirical<-lapply(innov_linear,empirical_values)
 innov_linear_summary <- empirical_summary(innov_linear_empirical)
-#literate_rep_function(innov_linear,50,"innov_linear")
+literate_rep_function(innov_linear,50,"innov_linear")
 
 N = rep(2000,ts)
 mu = rep(0.01,ts)
@@ -253,7 +253,7 @@ mu = rep(0.01,ts)
 trans_linear<- freqBias_replicates(N = N, mu = mu, b = trans_rates$linear, warm = warm, ts = ts, reps = rep)
 trans_linear_empirical<-lapply(trans_linear,empirical_values)
 trans_linear_summary <- empirical_summary(trans_linear_empirical)
-#literate_rep_function(trans_linear,50,"trans_linear")
+literate_rep_function(trans_linear,50,"trans_linear")
 
 save(pop_linear,
      innov_linear,
@@ -275,7 +275,7 @@ b = rep(0, ts)
 pop_exponential<- freqBias_replicates(N = pop_sizes$exponential, mu = mu, b = b, warm = warm, ts = ts, reps = rep)
 pop_exponential_empirical<-lapply(pop_exponential,empirical_values)
 pop_exponential_summary <- empirical_summary(pop_exponential_empirical)
-#literate_rep_function(pop_exponential,50,"pop_exponential")
+literate_rep_function(pop_exponential,50,"pop_exponential")
 
 N = rep(2000,ts)
 b = rep(0,ts)
@@ -283,7 +283,7 @@ b = rep(0,ts)
 innov_incremental<- freqBias_replicates(N = N, mu = innov_rates$incremental, b = b, warm = warm, ts = ts, reps = rep)
 innov_incremental_empirical<-lapply(innov_incremental,empirical_values)
 innov_incremental_summary <- empirical_summary(innov_incremental_empirical)
-#literate_rep_function(innov_incremental,50,"innov_incremental")
+literate_rep_function(innov_incremental,50,"innov_incremental")
 
 N = rep(2000,ts)
 mu = rep(0.01,ts)
@@ -291,7 +291,7 @@ mu = rep(0.01,ts)
 trans_multiple<- freqBias_replicates(N = N, mu = mu, b = trans_rates$multiple, warm = warm, ts = ts, reps = rep)
 trans_multiple_empirical<-lapply(trans_multiple,empirical_values)
 trans_multiple_summary <- empirical_summary(trans_multiple_empirical)
-#literate_rep_function(trans_multiple,50,"trans_multiple")
+literate_rep_function(trans_multiple,50,"trans_multiple")
 
 save(pop_exponential,
      innov_incremental,
@@ -313,7 +313,7 @@ b = rep(0, ts)
 pop_logistic<- freqBias_replicates(N = pop_sizes$logistic, mu = mu, b = b, warm = warm, ts = ts, reps = rep)
 pop_logistic_empirical<-lapply(pop_logistic,empirical_values)
 pop_logistic_summary <- empirical_summary(pop_logistic_empirical)
-#literate_rep_function(pop_logistic,50,"pop_logistic")
+literate_rep_function(pop_logistic,50,"pop_logistic")
 
 N = rep(2000,ts)
 b = rep(0,ts)
@@ -321,7 +321,7 @@ b = rep(0,ts)
 innov_invention<- freqBias_replicates(N = N, mu = innov_rates$invention, b = b, warm = warm, ts = ts, reps = rep)
 innov_invention_empirical<-lapply(innov_invention,empirical_values)
 innov_invention_summary <- empirical_summary(innov_invention_empirical)
-#literate_rep_function(innov_invention,50,"innov_invention")
+literate_rep_function(innov_invention,50,"innov_invention")
 
 N = rep(2000,ts)
 mu = rep(0.01,ts)
@@ -329,7 +329,7 @@ mu = rep(0.01,ts)
 trans_single<- freqBias_replicates(N = N, mu = mu, b = trans_rates$single, warm = warm, ts = ts, reps = rep)
 trans_single_empirical<-lapply(trans_single,empirical_values)
 trans_single_summary <- empirical_summary(trans_single_empirical)
-#literate_rep_function(trans_invention,50,"trans_invention")
+literate_rep_function(trans_invention,50,"trans_invention")
 
 save(pop_logistic,
      innov_invention,
@@ -356,17 +356,18 @@ The above figure (richness) can be created with the following code:
 png("Figure_2_Richness.png",width = 6, height = 10, units = "in", res = 300)
 par(mfrow=c(3,1))
 par(mar=c(4.1,4.1,4.1,1.1))
-time = seq(from = ts,to = 1,by = -1)
+
+time = seq(from = 1,to = 50,by = 1)
 
 plot(x=time,y=rowMeans(innov_invention_summary$Richness),type="n",
-     xlim=c(ts,1),ylim=c(0,260),
-     ylab='Number of Cultural Variants (Richness)',xlab="Time (BP)",bty="n",main="")
+     xlim=c(1,ts),ylim=c(0,260),
+     ylab='Number of Cultural Variants (Richness)',xlab="Time",bty="n",main="")
 apply(pop_linear_summary$Richness,MAR=2,lines,
-      col=alpha("black",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("black",0.02),lwd=1,x=seq(1,50,by=1))
 apply(innov_linear_summary$Richness,MAR=2,lines,
-      col=alpha("grey20",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("grey20",0.02),lwd=1,x=seq(1,50,by=1))
 apply(trans_linear_summary$Richness,MAR=2,lines,
-      col=alpha("grey40",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("grey40",0.02),lwd=1,x=seq(1,50,by=1))
 lines(x=time,y=rowMeans(pop_linear_summary$Richness,na.rm=TRUE),
       col=alpha("black",0.7),lwd=4)
 lines(x=time,y=rowMeans(innov_linear_summary$Richness,na.rm=TRUE),
@@ -376,14 +377,14 @@ lines(x=time,y=rowMeans(trans_linear_summary$Richness,na.rm=TRUE),
 mtext(side=2,line=-2,at=250,"A",las=2,cex=1.5)
 
 plot(x=time,y=rowMeans(innov_invention_summary$Richness),type="n",
-     xlim=c(ts,1),ylim=c(0,260),
-     ylab='Number of Cultural Variants (Richness)',xlab="Time (BP)",bty="n",main="")
+     xlim=c(1,ts),ylim=c(0,260),
+     ylab='Number of Cultural Variants (Richness)',xlab="Time",bty="n",main="")
 apply(pop_exponential_summary$Richness,MAR=2,lines,
-      col=alpha("black",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("black",0.02),lwd=1,x=seq(1,50,by=1))
 apply(innov_incremental_summary$Richness,MAR=2,lines,
-      col=alpha("grey20",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("grey20",0.02),lwd=1,x=seq(1,ts,by=1))
 apply(trans_multiple_summary$Richness,MAR=2,lines,
-      col=alpha("grey60",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("grey60",0.02),lwd=1,x=seq(1,ts,by=1))
 lines(x=time,y=rowMeans(pop_exponential_summary$Richness,na.rm=TRUE),
       col=alpha("black",0.7),lwd=4)
 lines(x=time,y=rowMeans(innov_incremental_summary$Richness,na.rm=TRUE),
@@ -393,14 +394,14 @@ lines(x=time,y=rowMeans(trans_multiple_summary$Richness,na.rm=TRUE),
 mtext(side=2,line=-2,at=250,"B",las=2,cex=1.5)
 
 plot(x=time,y=rowMeans(innov_invention_summary$Richness),type="n",
-     xlim=c(ts,1),ylim=c(0,260),
-     ylab='Number of Cultural Variants (Richness)',xlab="Time (BP)",bty="n",main="")
+     xlim=c(1,ts),ylim=c(0,260),
+     ylab='Number of Cultural Variants (Richness)',xlab="Time",bty="n",main="")
 apply(pop_logistic_summary$Richness,MAR=2,lines,
-      col=alpha("black",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("black",0.04),lwd=1,x=seq(1,ts,by=1))
 apply(innov_invention_summary$Richness,MAR=2,lines,
-      col=alpha("grey20",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("grey20",0.04),lwd=1,x=seq(1,ts,by=1))
 apply(trans_single_summary$Richness,MAR=2,lines,
-      col=alpha("grey60",0.04),lwd=1,x=seq(ts,1,by=-1))
+      col=alpha("grey60",0.04),lwd=1,x=seq(1,ts,by=1))
 lines(x=time,y=rowMeans(pop_logistic_summary$Richness,na.rm=TRUE),
       col=alpha("black",0.7),lwd=4)
 lines(x=time,y=rowMeans(innov_invention_summary$Richness,na.rm=TRUE),
@@ -456,11 +457,11 @@ In order to run LiteRate, the program needs to be downloading from its GitHub re
 
 LiteRate is a python-based program which can be executed in a terminal window by navigating (or creating) a folder which contains both the LiteRate text file (i.e. `pop_linear_r454.txt`) as well as the `LiteRateForward.py` file and the `literate_library`. For a single run, in this case of replicate 454, the analysis can be launched in the terminal window using the following command:
 
-`python3 LiteRateForward.py -d pop_linear_r454.txt -TBP`
+`python3 LiteRateForward.py -d pop_linear_r454.txt`
 
 Here, the LiteRate default settings of 10 million RJMCMC generations are used, with the RJMCMC recording every 1000th sample. These settings can be adjusted by adding the flags and values to the command. For example, a single run with 5 million generations, sampling every 5000th sample could be performed as:
 
-`python3 LiteRateForward.py -d pop_linear_r454.txt -TBP -n 5000000 -s 5000`
+`python3 LiteRateForward.py -d pop_linear_r454.txt -n 5000000 -s 5000`
 
 Please notice that we also use the flag -TBP, which indicates our time is in units before presents, meaning that 0 is the most recent time. If using historical data that is based on the BC/AD dates, this flag is not needed. 
 
@@ -492,17 +493,17 @@ knitr::include_graphics("trace_plot.png")
 
 Once evaluation of the mcmc logs is finished, the replicates can be combined into a single log file that will also produce an R script with raw data. To do this, navigate to the folder that contains the `plot_RJforward_files.py` file and use the following commands:
 
-`python3 plot_RJforward_files.py ./pop_linear/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
-`python3 plot_RJforward_files.py ./pop_exponential/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
-`python3 plot_RJforward_files.py ./pop_logistic/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./pop_linear/literate_mcmc_logs/ -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./pop_exponential/literate_mcmc_logs/  -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./pop_logistic/literate_mcmc_logs/ -burnin 0.2 -combine 1`  
 
-`python3 plot_RJforward_files.py ./innov_linear/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
-`python3 plot_RJforward_files.py ./innov_incremental/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1` 
-`python3 plot_RJforward_files.py ./innov_invention/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./innov_linear/literate_mcmc_logs/  -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./innov_incremental/literate_mcmc_logs/  -burnin 0.2 -combine 1` 
+`python3 plot_RJforward_files.py ./innov_invention/literate_mcmc_logs/  -burnin 0.2 -combine 1`  
 
-`python3 plot_RJforward_files.py ./trans_linear/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
-`python3 plot_RJforward_files.py ./trans_multiple/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
-`python3 plot_RJforward_files.py ./trans_single/literate_mcmc_logs/ -TBP -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./trans_linear/literate_mcmc_logs/  -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./trans_multiple/literate_mcmc_logs/  -burnin 0.2 -combine 1`  
+`python3 plot_RJforward_files.py ./trans_single/literate_mcmc_logs/  -burnin 0.2 -combine 1`  
 
 In addition to the -TBP flag discussed above, we also set a burn-in period to 20%, meaning the first 20% of samples are discarded in order to make sure the MCMC chains are effectively sampling. The flag combine -1 is also used to combine all 50 replicated into a single MCMC file along with a single set of estimated origination and extinction rates.   
 
@@ -578,6 +579,9 @@ ts = 50
 lite_start = 48
 lite_end = 3
 
+rate_lite_start = 3
+rate_lite_end = 48
+
 #As noted above, there are currently some edge effects due to a bug in the LiteRate code. So, the earliest and latest starts are not plotted here, but rather started just after (timestep 48) and finished just before (timestep 3). This issue is currently being worked on with the developers of LiteRate.  
 
 png("Figure_3_Scenario_A_Comparison.png",width = 10, height = 10, units = 'in', res = 300)
@@ -586,106 +590,106 @@ par(mfrow=c(3,2))
 par(mar=c(4.1, 4.5, 3.1, 1.1))
 
 plot(x=-sp_rate_pop_linear_time[lite_start:lite_end],
-     y=sp_rate_pop_linear_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5), xlab="Time (BP)",bty="n",
-     ylab="Rate of Change",cex.lab = 1.5)
-lines(x=-sp_rate_pop_linear_time[lite_start:lite_end],
-      y=sp_rate_pop_linear_rate[lite_start:lite_end],col="navyblue")
+     y=sp_rate_pop_linear_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n", 
+     ylab="Origination and Extinction Rates",cex.lab = 1)
+lines(x=-sp_rate_pop_linear_time[lite_end:lite_start],
+      y=sp_rate_pop_linear_rate[rate_lite_end:rate_lite_start],col="navyblue")
 polygon(x=c(-sp_rate_pop_linear_time[lite_start:lite_end],
             rev(-sp_rate_pop_linear_time[lite_start:lite_end])), 
-        y=c(sp_rate_pop_linear_maxHPD[lite_start:lite_end],
-            rev(sp_rate_pop_linear_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_pop_linear_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(sp_rate_pop_linear_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_pop_linear_time[lite_start:lite_end],
-      y=ex_rate_pop_linear_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_pop_linear_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_pop_linear_time[lite_start:lite_end],
             rev(-ex_rate_pop_linear_time[lite_start:lite_end])), 
-        y=c(ex_rate_pop_linear_maxHPD[lite_start:lite_end],
-            rev(ex_rate_pop_linear_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_pop_linear_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(ex_rate_pop_linear_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_pop_linear_mids,sp_rate_pop_linear_counts,
-     xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",type="n",bty="n",
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_pop_linear_mids,sp_rate_pop_linear_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_pop_linear_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_pop_linear_mids[lite_start:lite_end])),
          x1=-sp_rate_pop_linear_mids[lite_start:lite_end],
-         y1=sp_rate_pop_linear_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_pop_linear_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_pop_linear_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_pop_linear_counts[lite_start:lite_end])),
          x1=-ex_rate_pop_linear_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_pop_linear_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_pop_linear_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Population (A1)",cex=1.5,side=3,line=1,at=60)
+mtext("Population (A1)",cex=1.5,side=3,line=1,at=-10)
 
 plot(x=-sp_rate_innov_linear_time[lite_start:lite_end],
-     y=sp_rate_innov_linear_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)", bty="n",
-     ylab="Rate of Change",cex.lab = 1.5)
+     y=sp_rate_innov_linear_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates",cex.lab = 1)
 lines(x=-sp_rate_innov_linear_time[lite_start:lite_end],
-      y=sp_rate_innov_linear_rate[lite_start:lite_end],col="navyblue")
+      y=sp_rate_innov_linear_rate[rate_lite_start:rate_lite_end],col="navyblue")
 polygon(x=c(-sp_rate_innov_linear_time[lite_start:lite_end],
             rev(-sp_rate_innov_linear_time[lite_start:lite_end])), 
-        y=c(sp_rate_innov_linear_maxHPD[lite_start:lite_end], 
-            rev(sp_rate_innov_linear_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_innov_linear_maxHPD[rate_lite_start:rate_lite_end],
+            rev(sp_rate_innov_linear_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_innov_linear_time[lite_start:lite_end],
-      y=ex_rate_innov_linear_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_innov_linear_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_innov_linear_time[lite_start:lite_end],
             rev(-ex_rate_innov_linear_time[lite_start:lite_end])), 
-        y=c(ex_rate_innov_linear_maxHPD[lite_start:lite_end], 
-            rev(ex_rate_innov_linear_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_innov_linear_maxHPD[rate_lite_start:rate_lite_end],
+            rev(ex_rate_innov_linear_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_innov_linear_mids,sp_rate_innov_linear_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)",type="n",bty="n", 
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_innov_linear_mids,sp_rate_innov_linear_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_innov_linear_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_innov_linear_mids[lite_start:lite_end])),
          x1=-sp_rate_innov_linear_mids[lite_start:lite_end],
-         y1=sp_rate_innov_linear_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_innov_linear_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_innov_linear_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_innov_linear_counts[lite_start:lite_end])),
          x1=-ex_rate_innov_linear_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_innov_linear_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_innov_linear_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Innovation (A2)",cex=1.5,side=3,line=1,at=60)
+mtext("Innovation (A2)",cex=1.5,side=3,line=1,at=-10)
 
 plot(x=-sp_rate_trans_linear_time[lite_start:lite_end],
-     y=sp_rate_trans_linear_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)", bty="n",
-     ylab="Rate of Change", cex.lab = 1.5)
+     y=sp_rate_trans_linear_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates",cex.lab = 1)
 lines(x=-sp_rate_trans_linear_time[lite_start:lite_end],
-      y=sp_rate_trans_linear_rate[lite_start:lite_end],col="navyblue")
+      y=sp_rate_trans_linear_rate[rate_lite_start:rate_lite_end],col="navyblue")
 polygon(x=c(-sp_rate_trans_linear_time[lite_start:lite_end],
             rev(-sp_rate_trans_linear_time[lite_start:lite_end])), 
-        y=c(sp_rate_trans_linear_maxHPD[lite_start:lite_end], 
-            rev(sp_rate_trans_linear_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_trans_linear_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(sp_rate_trans_linear_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_trans_linear_time[lite_start:lite_end],
-      y=ex_rate_trans_linear_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_trans_linear_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_trans_linear_time[lite_start:lite_end],
             rev(-ex_rate_trans_linear_time[lite_start:lite_end])), 
-        y=c(ex_rate_trans_linear_maxHPD[lite_start:lite_end], 
-            rev(ex_rate_trans_linear_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_trans_linear_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(ex_rate_trans_linear_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_trans_linear_mids,sp_rate_trans_linear_counts
-     ,xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",type="n",bty="n",
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_trans_linear_mids,sp_rate_trans_linear_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_trans_linear_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_trans_linear_mids[lite_start:lite_end])),
          x1=-sp_rate_trans_linear_mids[lite_start:lite_end],
-         y1=sp_rate_trans_linear_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_trans_linear_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_trans_linear_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_trans_linear_counts[lite_start:lite_end])),
          x1=-ex_rate_trans_linear_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_trans_linear_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_trans_linear_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Frequency-Bias (A3)",cex=1.5,side=3,line=1,at=58.5)
+mtext("Frequency-Bias (A3)",cex=1.5,side=3,line=1,at=-8)
 
 dev.off()
 ```
@@ -701,112 +705,116 @@ ts = 50
 lite_start = 48
 lite_end = 3
 
+rate_lite_start = 3
+rate_lite_end = 48
+
 png("Figure_4_Scenario_B_comparison.png",width = 10, height = 10, units = 'in', res = 300)
 
 par(mfrow=c(3,2))
 par(mar=c(4.1, 4.5, 3.1, 1.1))
 
 plot(x=-sp_rate_pop_exponential_time[lite_start:lite_end],
-     y=-sp_rate_pop_exponential_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change",cex.lab = 1.5)
-lines(x=-sp_rate_pop_exponential_time[lite_start:lite_end],
-      y=sp_rate_pop_exponential_rate[lite_start:lite_end],col="navyblue")
+     y=sp_rate_pop_exponential_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n", 
+     ylab="Origination and Extinction Rates",cex.lab = 1)
+lines(x=-sp_rate_pop_exponential_time[lite_end:lite_start],
+      y=sp_rate_pop_exponential_rate[rate_lite_end:rate_lite_start],col="navyblue")
 polygon(x=c(-sp_rate_pop_exponential_time[lite_start:lite_end],
             rev(-sp_rate_pop_exponential_time[lite_start:lite_end])), 
-        y=c(sp_rate_pop_exponential_maxHPD[lite_start:lite_end],
-            rev(sp_rate_pop_exponential_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_pop_exponential_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(sp_rate_pop_exponential_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_pop_exponential_time[lite_start:lite_end],
-      y=ex_rate_pop_exponential_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_pop_exponential_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_pop_exponential_time[lite_start:lite_end],
-            rev(-ex_rate_pop_exponential_time[lite_start:lite_end])),
-        y=c(ex_rate_pop_exponential_maxHPD[lite_start:lite_end],
-            rev(ex_rate_pop_exponential_minHPD[lite_start:lite_end])), 
+            rev(-ex_rate_pop_exponential_time[lite_start:lite_end])), 
+        y=c(ex_rate_pop_exponential_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(ex_rate_pop_exponential_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_pop_exponential_mids,sp_rate_pop_exponential_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)", type="n",bty="n", 
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_pop_exponential_mids,sp_rate_pop_exponential_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_pop_exponential_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_pop_exponential_mids[lite_start:lite_end])),
          x1=-sp_rate_pop_exponential_mids[lite_start:lite_end],
-         y1=sp_rate_pop_exponential_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_pop_exponential_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_pop_exponential_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_pop_exponential_counts[lite_start:lite_end])),
          x1=-ex_rate_pop_exponential_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_pop_exponential_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_pop_exponential_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Population (B1)",cex=1.5,side=3,line=1,at=60)
+mtext("Population (B1)",cex=1.5,side=3,line=1,at=-10)
 
 plot(x=-sp_rate_innov_incremental_time[lite_start:lite_end],
-     y=sp_rate_innov_incremental_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change", cex.lab = 1.5)
+     y=sp_rate_innov_incremental_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates",cex.lab = 1)
 lines(x=-sp_rate_innov_incremental_time[lite_start:lite_end],
-      y=sp_rate_innov_incremental_rate[lite_start:lite_end],col="navyblue")
+      y=sp_rate_innov_incremental_rate[rate_lite_start:rate_lite_end],col="navyblue")
 polygon(x=c(-sp_rate_innov_incremental_time[lite_start:lite_end],
             rev(-sp_rate_innov_incremental_time[lite_start:lite_end])), 
-        y=c(sp_rate_innov_incremental_maxHPD[lite_start:lite_end],
-            rev(sp_rate_innov_incremental_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_innov_incremental_maxHPD[rate_lite_start:rate_lite_end],
+            rev(sp_rate_innov_incremental_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_innov_incremental_time[lite_start:lite_end],
-      y=ex_rate_innov_incremental_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_innov_incremental_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_innov_incremental_time[lite_start:lite_end],
             rev(-ex_rate_innov_incremental_time[lite_start:lite_end])), 
-        y=c(ex_rate_innov_incremental_maxHPD[lite_start:lite_end],
-            rev(ex_rate_innov_incremental_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_innov_incremental_maxHPD[rate_lite_start:rate_lite_end],
+            rev(ex_rate_innov_incremental_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_innov_incremental_mids,sp_rate_innov_incremental_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)", type="n",bty="n", 
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_innov_incremental_mids,sp_rate_innov_incremental_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_innov_incremental_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_innov_incremental_mids[lite_start:lite_end])),
          x1=-sp_rate_innov_incremental_mids[lite_start:lite_end],
-         y1=sp_rate_innov_incremental_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_innov_incremental_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_innov_incremental_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_innov_incremental_counts[lite_start:lite_end])),
          x1=-ex_rate_innov_incremental_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_innov_incremental_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_innov_incremental_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Innovation (B2)",cex=1.5,side=3,line=1,at=60)
+mtext("Innovation (B2)",cex=1.5,side=3,line=1,at=-10)
 
 plot(x=-sp_rate_trans_multiple_time[lite_start:lite_end],
-     y=sp_rate_trans_multiple_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change",cex.lab = 1.5)
+     y=sp_rate_trans_multiple_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates",cex.lab = 1)
 lines(x=-sp_rate_trans_multiple_time[lite_start:lite_end],
-      y=sp_rate_trans_multiple_rate[lite_start:lite_end],col="navyblue")
+      y=sp_rate_trans_multiple_rate[rate_lite_start:rate_lite_end],col="navyblue")
 polygon(x=c(-sp_rate_trans_multiple_time[lite_start:lite_end],
             rev(-sp_rate_trans_multiple_time[lite_start:lite_end])), 
-        y=c(sp_rate_trans_multiple_maxHPD[lite_start:lite_end],
-            rev(sp_rate_trans_multiple_minHPD[lite_start:lite_end])),
+        y=c(sp_rate_trans_multiple_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(sp_rate_trans_multiple_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_trans_multiple_time[lite_start:lite_end],
-      y=ex_rate_trans_multiple_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_trans_multiple_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_trans_multiple_time[lite_start:lite_end],
             rev(-ex_rate_trans_multiple_time[lite_start:lite_end])), 
-        y=c(ex_rate_trans_multiple_maxHPD[lite_start:lite_end],
-            rev(ex_rate_trans_multiple_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_trans_multiple_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(ex_rate_trans_multiple_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_trans_multiple_mids,sp_rate_trans_multiple_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)", type="n",bty="n", 
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_trans_multiple_mids,sp_rate_trans_multiple_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_trans_multiple_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_trans_multiple_mids[lite_start:lite_end])),
          x1=-sp_rate_trans_multiple_mids[lite_start:lite_end],
-         y1=sp_rate_trans_multiple_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_trans_multiple_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_trans_multiple_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_trans_multiple_counts[lite_start:lite_end])),
          x1=-ex_rate_trans_multiple_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_trans_multiple_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_trans_multiple_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Frequency-Bias (B3)",cex=1.5,side=3,line=1,at=58.5)
+mtext("Frequency-Bias (B3)",cex=1.5,side=3,line=1,at=-8)
+
 dev.off()
 ```
 
@@ -821,113 +829,115 @@ ts = 50
 lite_start = 48
 lite_end = 3
 
+rate_lite_start = 3
+rate_lite_end = 48
+
 png("Figure_5_Scenario_C_comparison.png",width = 10, height = 10, units = 'in', res = 300)
 
 par(mfrow=c(3,2))
 par(mar=c(4.1, 4.5, 3.1, 1.1))
 
 plot(x=-sp_rate_pop_logistic_time[lite_start:lite_end],
-     y=sp_rate_pop_logistic_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n", 
-     ylab="Rate of Change",cex.lab = 1.5)
-lines(x=-sp_rate_pop_logistic_time[lite_start:lite_end],
-      y=sp_rate_pop_logistic_rate[lite_start:lite_end],col="navyblue")
+     y=sp_rate_pop_logistic_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n", 
+     ylab="Origination and Extinction Rates",cex.lab = 1)
+lines(x=-sp_rate_pop_logistic_time[lite_end:lite_start],
+      y=sp_rate_pop_logistic_rate[rate_lite_end:rate_lite_start],col="navyblue")
 polygon(x=c(-sp_rate_pop_logistic_time[lite_start:lite_end],
             rev(-sp_rate_pop_logistic_time[lite_start:lite_end])), 
-        y=c(sp_rate_pop_logistic_maxHPD[lite_start:lite_end], 
-            rev(sp_rate_pop_logistic_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_pop_logistic_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(sp_rate_pop_logistic_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_pop_logistic_time[lite_start:lite_end],
-      y=ex_rate_pop_logistic_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_pop_logistic_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_pop_logistic_time[lite_start:lite_end],
             rev(-ex_rate_pop_logistic_time[lite_start:lite_end])), 
-        y=c(ex_rate_pop_logistic_maxHPD[lite_start:lite_end], 
-            rev(ex_rate_pop_logistic_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_pop_logistic_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(ex_rate_pop_logistic_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_pop_logistic_mids,sp_rate_pop_logistic_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)", type="n",bty="n",
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_pop_logistic_mids,sp_rate_pop_logistic_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_pop_logistic_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_pop_logistic_mids[lite_start:lite_end])),
          x1=-sp_rate_pop_logistic_mids[lite_start:lite_end],
-         y1=sp_rate_pop_logistic_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_pop_logistic_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_pop_logistic_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_pop_logistic_counts[lite_start:lite_end])),
          x1=-ex_rate_pop_logistic_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_pop_logistic_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_pop_logistic_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Population (C1)",cex=1.5,side=3,line=1,at=60)
+mtext("Population (C1)",cex=1.5,side=3,line=1,at=-10)
 
 plot(x=-sp_rate_innov_invention_time[lite_start:lite_end],
-     y=sp_rate_innov_invention_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change",cex.lab = 1.5)
+     y=sp_rate_innov_invention_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates",cex.lab = 1)
 lines(x=-sp_rate_innov_invention_time[lite_start:lite_end],
-      y=sp_rate_innov_invention_rate[lite_start:lite_end],col="navyblue")
+      y=sp_rate_innov_invention_rate[rate_lite_start:rate_lite_end],col="navyblue")
 polygon(x=c(-sp_rate_innov_invention_time[lite_start:lite_end],
             rev(-sp_rate_innov_invention_time[lite_start:lite_end])), 
-        y=c(sp_rate_innov_invention_maxHPD[lite_start:lite_end],
-            rev(sp_rate_innov_invention_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_innov_invention_maxHPD[rate_lite_start:rate_lite_end],
+            rev(sp_rate_innov_invention_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_innov_invention_time[lite_start:lite_end],
-      y=ex_rate_innov_invention_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_innov_invention_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_innov_invention_time[lite_start:lite_end],
             rev(-ex_rate_innov_invention_time[lite_start:lite_end])), 
-        y=c(ex_rate_innov_invention_maxHPD[lite_start:lite_end],
-            rev(ex_rate_innov_invention_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_innov_invention_maxHPD[rate_lite_start:rate_lite_end],
+            rev(ex_rate_innov_invention_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
 
-plot(sp_rate_innov_invention_mids,sp_rate_innov_invention_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)", type="n",bty="n",
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_innov_invention_mids,sp_rate_innov_invention_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_innov_invention_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_innov_invention_mids[lite_start:lite_end])),
          x1=-sp_rate_innov_invention_mids[lite_start:lite_end],
-         y1=sp_rate_innov_invention_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_innov_invention_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_innov_invention_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_innov_invention_counts[lite_start:lite_end])),
          x1=-ex_rate_innov_invention_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_innov_invention_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_innov_invention_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Innovation (C2)",cex=1.5,side=3,line=1,at=60)
+mtext("Innovation (C2)",cex=1.5,side=3,line=1,at=-10)
 
 plot(x=-sp_rate_trans_single_time[lite_start:lite_end],
-     y=sp_rate_trans_single_rate[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change",cex.lab = 1.5)
+     y=sp_rate_trans_single_rate[rate_lite_start:rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates",cex.lab = 1)
 lines(x=-sp_rate_trans_single_time[lite_start:lite_end],
-      y=sp_rate_trans_single_rate[lite_start:lite_end],col="navyblue")
+      y=sp_rate_trans_single_rate[rate_lite_start:rate_lite_end],col="navyblue")
 polygon(x=c(-sp_rate_trans_single_time[lite_start:lite_end],
             rev(-sp_rate_trans_single_time[lite_start:lite_end])), 
-        y=c(sp_rate_trans_single_maxHPD[lite_start:lite_end], 
-            rev(sp_rate_trans_single_minHPD[lite_start:lite_end])), 
+        y=c(sp_rate_trans_single_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(sp_rate_trans_single_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_trans_single_time[lite_start:lite_end],
-      y=ex_rate_trans_single_rate[lite_start:lite_end],col="firebrick",lwd=2)
+      y=ex_rate_trans_single_rate[rate_lite_start:rate_lite_end],col="firebrick",lwd=2)
 polygon(x=c(-ex_rate_trans_single_time[lite_start:lite_end],
             rev(-ex_rate_trans_single_time[lite_start:lite_end])), 
-        y=c(ex_rate_trans_single_maxHPD[lite_start:lite_end], 
-            rev(ex_rate_trans_single_minHPD[lite_start:lite_end])), 
+        y=c(ex_rate_trans_single_maxHPD[rate_lite_start:rate_lite_end], 
+            rev(ex_rate_trans_single_minHPD[rate_lite_start:rate_lite_end])), 
         col = alpha("firebrick",0.3), border = NA)
-text(2,0.5,"9a",cex=1.5)
 
-plot(sp_rate_trans_single_mids,sp_rate_trans_single_counts,xlim=c(ts,1),
-     ylim=c(0,0.5),xlab="Time (BP)", type="n",bty="n",
-     ylab="Frequency of Shift",cex.lab = 1.5)
+plot(sp_rate_trans_single_mids,sp_rate_trans_single_counts,xlim=c(1,ts),
+     ylim=c(0,0.5),xlab="Time", type="n",bty="n",
+     ylab="Proportion of RJMCMC Generations",cex.lab = 1)
 segments(x0=-sp_rate_trans_single_mids[lite_start:lite_end],
          y0=rep(0,length(sp_rate_trans_single_mids[lite_start:lite_end])),
          x1=-sp_rate_trans_single_mids[lite_start:lite_end],
-         y1=sp_rate_trans_single_counts[lite_start:lite_end],lwd=2,col="navyblue")
+         y1=sp_rate_trans_single_counts[rate_lite_start:rate_lite_end],lwd=2,col="navyblue")
 segments(x0=-ex_rate_trans_single_mids[lite_start:lite_end]+0.25,
          y0=rep(0,length(ex_rate_trans_single_counts[lite_start:lite_end])),
          x1=-ex_rate_trans_single_mids[lite_start:lite_end]+0.25,
-         y1=ex_rate_trans_single_counts[lite_start:lite_end],lwd=2,col="firebrick")
+         y1=ex_rate_trans_single_counts[rate_lite_start:rate_lite_end],lwd=2,col="firebrick")
 abline(h=bf2,lty=2)
 abline(h=bf6,lty=2)
-mtext("Frequency-Bias (C3)",cex=1.5,side=3,line=1,at=58.5)
+mtext("Frequency-Bias (C3)",cex=1.5,side=3,line=1,at=-8)
 
 dev.off()
 ```
@@ -942,6 +952,9 @@ And finally, the comparison between diversification rates estimated from complet
 ta_lite_start = 1 #As noted above, due to some lingering edge effects in LiteRate, the first data point is not plotted
 ta_lite_end = 10
 
+ta_rate_lite_start = 10
+ta_rate_lite_end = 1
+
 png("Figure_6_Time_Samp.png",width = 10, height = 10, units = 'in', res = 300)
 
 par(mfrow=c(3,3))
@@ -950,299 +963,291 @@ par(mar=c(4.1, 4.5, 3.1, 0.1))
 ########## Scenario A #############
 
 plot(x=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change", cex.lab = 1.5)
+      y=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates", cex.lab = 1)
 lines(x=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,col="navyblue")
+         y0=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_pop_linear_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_pop_linear_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_pop_linear_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_pop_linear_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_pop_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_pop_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_pop_linear_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_pop_linear_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_pop_linear_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_pop_linear_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("A1",cex=1.5,side=3,line=-2,at=25)
 mtext("Population",cex=1.5,side=3,line=1,at=25)
 
 
 plot(x=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     yaxt="n", ylab="",cex.lab = 1.5)
+      y=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",yaxt="n",
+     ylab="", cex.lab = 1)
 lines(x=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_innov_linear_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_innov_linear_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_innov_linear_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_innov_linear_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_innov_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_innov_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_innov_linear_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_innov_linear_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_innov_linear_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_innov_linear_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("A2",cex=1.5,side=3,line=-2,at=25)
 mtext("Innovation",cex=1.5,side=3,line=1,at=25)
 
+
 plot(x=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     yaxt="n", ylab="",
-     cex.lab = 1.5)
+      y=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",yaxt="n",
+     ylab="", cex.lab = 1)
 lines(x=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_trans_linear_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_trans_linear_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_trans_linear_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_trans_linear_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_trans_linear_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_trans_linear_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_trans_linear_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_trans_linear_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_trans_linear_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_trans_linear_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("A3",cex=1.5,side=3,line=-2,at=25)
 mtext("Frequency-Bias",cex=1.5,side=3,line=1,at=25)
 
-##### Row 2 #######
+
 plot(x=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change", cex.lab = 1.5)
+      y=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates", cex.lab = 1)
 lines(x=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_pop_exponential_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_pop_exponential_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_pop_exponential_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_pop_exponential_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_pop_exponential_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_pop_exponential_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_pop_exponential_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_pop_exponential_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_pop_exponential_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_pop_exponential_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("B1",cex=1.5,side=3,line=-2,at=25)
 
 plot(x=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     yaxt="n", ylab="", cex.lab = 1.5)
+      y=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",yaxt="n",
+     ylab="", cex.lab = 1)
 lines(x=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_innov_incremental_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_innov_incremental_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_innov_incremental_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_innov_incremental_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_innov_incremental_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_innov_incremental_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_innov_incremental_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_innov_incremental_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_innov_incremental_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_innov_incremental_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("B2",cex=1.5,side=3,line=-2,at=25)
 
 plot(x=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     yaxt="n", ylab="", cex.lab = 1.5)
+      y=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",yaxt="n",
+     ylab="", cex.lab = 1)
 lines(x=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_trans_multiple_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_trans_multiple_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_trans_multiple_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_trans_multiple_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_trans_multiple_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_trans_multiple_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_trans_multiple_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_trans_multiple_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_trans_multiple_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_trans_multiple_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("B3",cex=1.5,side=3,line=-2,at=25)
 
-
-######Row 3#########
 plot(x=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     ylab="Rate of Change", cex.lab = 1.5)
+      y=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",
+     ylab="Origination and Extinction Rates", cex.lab = 1)
 lines(x=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_pop_logistic_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_pop_logistic_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_pop_logistic_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_pop_logistic_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_pop_logistic_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_pop_logistic_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_pop_logistic_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_pop_logistic_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_pop_logistic_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_pop_logistic_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("C1",cex=1.5,side=3,line=-2,at=25)
 
 plot(x=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     yaxt="n", ylab="", cex.lab = 1.5)
+      y=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",yaxt="n",
+     ylab="", cex.lab = 1)
 lines(x=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_innov_invention_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_innov_invention_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_innov_invention_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_innov_invention_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_innov_invention_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_innov_invention_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_innov_invention_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_innov_invention_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_innov_invention_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_innov_invention_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("C2",cex=1.5,side=3,line=-2,at=25)
 
-plot(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end],
-     y=sp_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,0.5),xlab="Time (BP)",bty="n",
-     yaxt="n", ylab="", cex.lab = 1.5)
+plot(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
+      y=sp_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
+     type="n",xlim=c(1,ts),ylim=c(0,0.5),xlab="Time",bty="n",yaxt="n",
+     ylab="", cex.lab = 1)
 lines(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=sp_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=sp_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="navyblue",lty=4,lwd=2)
 segments(x0=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=sp_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=sp_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
-         col="navyblue")
+         y0=sp_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=sp_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,col="navyblue")
 polygon(x=c(-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(sp_rate_ta_trans_single_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(sp_rate_ta_trans_single_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(sp_rate_ta_trans_single_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(sp_rate_ta_trans_single_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("navyblue",0.3), border = NA)
 lines(x=-ex_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=ex_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5,
+      y=ex_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5,
       col="firebrick",lty=4,lwd=2)
 segments(x0=-ex_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
          x1=-ex_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-         y0=ex_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5+0.02,
-         y1=ex_rate_ta_trans_single_5_samp_.1_rate[ta_lite_start:ta_lite_end]/5-0.02,
+         y0=ex_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5+0.02,
+         y1=ex_rate_ta_trans_single_5_samp_.1_rate[ta_rate_lite_start:ta_rate_lite_end]/5-0.02,
          col="firebrick")
 polygon(x=c(-ex_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
             rev(-ex_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end])*5), 
-        y=c(ex_rate_ta_trans_single_5_samp_.1_maxHPD[ta_lite_start:ta_lite_end]/5, 
-            rev(ex_rate_ta_trans_single_5_samp_.1_minHPD[ta_lite_start:ta_lite_end]/5)), 
+        y=c(ex_rate_ta_trans_single_5_samp_.1_maxHPD[ta_rate_lite_start:ta_rate_lite_end]/5, 
+            rev(ex_rate_ta_trans_single_5_samp_.1_minHPD[ta_rate_lite_start:ta_rate_lite_end]/5)), 
         col = alpha("firebrick",0.3), border = NA)
 mtext("C3",cex=1.5,side=3,line=-2,at=25)
+
+
 dev.off()
 ```
 
@@ -1256,58 +1261,61 @@ An additional supplemental figure not provided in the text the mean richness for
 ta_lite_start = 1
 ta_lite_end = 10
 
+ta_rate_lite_start = 10
+ta_rate_lite_end = 1
+
 png("Figure_S1_TA_Samp_Richness.png",width = 6, height = 10, units = "in", res = 300)
 par(mfrow=c(3,1))
 par(mar=c(4.1,4.1,4.1,1.1))
 
 #Scenario A
-plot(x=sp_rate_ta_pop_linear_5_samp_.1_time[lite_start:lite_end],
-     y=diversity_ta_pop_linear_5_samp_.1_net_diversity[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,50),xlab="Time (BP)",bty="n",
+plot(x=sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end],
+     y=diversity_ta_pop_linear_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,50),xlab="Time",bty="n",
      ylab="Number of Cultural Variants (Richness)",
      cex.lab = 1.5)
 lines(x=-sp_rate_ta_pop_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_pop_linear_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_pop_linear_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="black",lty=1,lwd=2)
 lines(x=-sp_rate_ta_innov_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_innov_linear_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_innov_linear_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="grey20",lty=2,lwd=2)
 lines(x=-sp_rate_ta_trans_linear_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_trans_linear_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_trans_linear_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="grey40",lty=3,lwd=2)
 mtext(side=2,line=-2,at=50,"A",las=2,cex=1.5)
 
 #Scenario B
-plot(x=sp_rate_ta_pop_exponential_5_samp_.1_time[lite_start:lite_end],
-     y=diversity_ta_pop_exponential_5_samp_.1_net_diversity[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,50),xlab="Time (BP)",bty="n",
+plot(x=sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end],
+     y=diversity_ta_pop_exponential_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,50),xlab="Time",bty="n",
      ylab="Number of Cultural Variants (Richness)",
      cex.lab = 1.5)
 lines(x=-sp_rate_ta_pop_exponential_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_pop_exponential_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_pop_exponential_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="black",lty=1,lwd=2)
 lines(x=-sp_rate_ta_innov_incremental_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_innov_incremental_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_innov_incremental_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="grey20",lty=2,lwd=2)
 lines(x=-sp_rate_ta_trans_multiple_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_trans_multiple_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_trans_multiple_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="grey40",lty=3,lwd=2)
 mtext(side=2,line=-2,at=50,"B",las=2,cex=1.5)
 
 #Scenario C
-plot(x=sp_rate_ta_pop_logistic_5_samp_.1_time[lite_start:lite_end],
-     y=diversity_ta_pop_logistic_5_samp_.1_net_diversity[lite_start:lite_end],
-     type="n",xlim=c(ts,1),ylim=c(0,50),xlab="Time (BP)",bty="n",
+plot(x=sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end],
+     y=diversity_ta_pop_logistic_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
+     type="n",xlim=c(1,ts),ylim=c(0,50),xlab="Time",bty="n",
      ylab="Number of Cultural Variants (Richness)",
      cex.lab = 1.5)
 lines(x=-sp_rate_ta_pop_logistic_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_pop_logistic_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_pop_logistic_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="black",lty=1,lwd=2)
 lines(x=-sp_rate_ta_innov_invention_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_innov_invention_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_innov_invention_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="grey20",lty=2,lwd=2)
 lines(x=-sp_rate_ta_trans_single_5_samp_.1_time[ta_lite_start:ta_lite_end]*5,
-      y=diversity_ta_trans_single_5_samp_.1_net_diversity[ta_lite_start:ta_lite_end],
+      y=diversity_ta_trans_single_5_samp_.1_net_diversity[ta_rate_lite_start:ta_rate_lite_end],
       col="grey40",lty=3,lwd=2)
 mtext(side=2,line=-2,at=50,"C",las=2,cex=1.5)
 
