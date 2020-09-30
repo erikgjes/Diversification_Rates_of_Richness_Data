@@ -136,7 +136,7 @@ literate_rep_function<-function(x,replicates,new_directory_name){
     r1 <- matrix_to_literate(list[[i]])
     rep_nb <- names(list[i])
     write.table(r1,paste0(wd,"/",x_name,"_",rep_nb,".txt"),quote=FALSE,sep="\t",row.names=FALSE)
-    cat(paste0("python3 LiteRateForward.py -d ",paste0(wd, "/",x_name,"_",rep_nb,".txt")," -TBP"),
+    cat(paste0("python3 LiteRateForward.py -d ",paste0(wd, "/",x_name,"_",rep_nb,".txt")),
         append=TRUE,file=paste0(wd,"/",x_name,"_commands.txt"),sep="\n")
   }
 }
@@ -148,8 +148,8 @@ matrix_to_literate<-function(x){
   x_t<- as.data.frame(cbind(x_t,time_step))
   x_long <- x_t %>% pivot_longer(-time_step,names_to="variants",values_to="count")
   x_long <- uncount(x_long,count)
-  x_ts<- x_long %>% group_by(variants) %>% summarise(ts=max(time_step), .groups = 'drop')
-  x_te<- x_long %>% group_by(variants) %>% summarise(te=min(time_step), .groups = 'drop')
+  x_ts<- x_long %>% group_by(variants) %>% summarise(ts=min(time_step), .groups = 'drop')
+  x_te<- x_long %>% group_by(variants) %>% summarise(te=max(time_step), .groups = 'drop')
   x_literate<-data.frame(Species=x_ts$variants,
                          max_age=x_ts$ts,
                          min_age=x_te$te)
@@ -161,12 +161,12 @@ matrix_to_literate<-function(x){
 
 matrix_to_literate_ta_samp<-function(x,base,s_frac){
   x_t<-t(x)
-  time_step <- seq(from=nrow(x_t),to=1,by=-1)
+  time_step <- seq(from=1,to=nrow(x_t),by=-1)
   x_t<- as.data.frame(cbind(x_t,time_step))
   x_long <- x_t %>% pivot_longer(-time_step,names_to="variants",values_to="count")
   x_long <- uncount(x_long,count)
-  x_ts<- x_long %>% group_by(variants) %>% summarise(ts=max(time_step), .groups = 'drop')
-  x_te<- x_long %>% group_by(variants) %>% summarise(te=min(time_step), .groups = 'drop')
+  x_ts<- x_long %>% group_by(variants) %>% summarise(ts=min(time_step), .groups = 'drop')
+  x_te<- x_long %>% group_by(variants) %>% summarise(te=max(time_step), .groups = 'drop')
   x_literate<-data.frame(Species=x_ts$variants,
                          max_age=x_ts$ts,
                          min_age=x_te$te)
@@ -190,7 +190,7 @@ literate_rep_function_ta_samp<-function(x,replicates,new_directory_name,base,s_f
     r1 <- matrix_to_literate_ta_samp(list[[i]],base,s_frac)
     rep_nb <- names(list[i])
     write.table(r1,paste0(wd,"/",x_name,"_",rep_nb,".txt"),quote=FALSE,sep="\t",row.names=FALSE)
-    cat(paste0("python3 LiteRateForward.py -d ",paste0(wd, "/",x_name,"_",rep_nb,".txt")," -TBP"),
+    cat(paste0("python3 LiteRateForward.py -d ",paste0(wd, "/",x_name,"_",rep_nb,".txt")),
         append=TRUE,file=paste0(wd,"/",x_name,"_commands.txt"),sep="\n")
   }
 }
