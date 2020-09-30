@@ -15,7 +15,7 @@ sig_growth<- function(timesteps, assympote, lower_bound, midpoint, scale) {
   
   est = assympote + ( x_mid / ( 1 + exp( scale * (timesteps - midpoint) ) ) )
   
-  return(rev(est))
+  return(est)
 }
 
 expo_growth <- function(timesteps, upper_bound, lower_bound, scale) {
